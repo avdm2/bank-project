@@ -45,9 +45,12 @@
           
             docker build --build-arg JAR_FILE=target/\*.jar --tag avdm2/tinkoff_hw1:$TAG .
             docker push avdm2/tinkoff_hw1:$TAG
+            
+            echo "::set-output name=image_tag::$TAG"
 
         - name: Push latest
           if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           run: |
-            docker tag avdm2/tinkoff_hw1:$TAG avdm2/tinkoff_hw1:latest
+            docker image rm -f avdm2/tinkoff_hw1:latest || true
+            docker tag avdm2/tinkoff_hw1:${{ needs.build.outputs.image_tag }} avdm2/tinkoff_hw1:latest
             docker push avdm2/tinkoff_hw1:latest
