@@ -31,6 +31,7 @@
             password: ${{ secrets.DOCKER_PASSWORD }}
 
         - name: Determine Docker tag
+          id: get_tag
           run: |
             TAG=${{ inputs.tag }}
             if [ -z "$TAG" ]
@@ -41,7 +42,7 @@
             echo "image_tag=$TAG" >> "$GITHUB_OUTPUT"
 
         - name: Pull the Docker image
-          run: docker pull avdm2/tinkoff_hse1:${{ needs.deploy.outputs.image_tag }}
+          run: docker pull avdm2/tinkoff_hw1:${{ steps.get_tag.outputs.image_tag }}
 
         - name: Run Docker container and display result
-          run: docker run avdm2/tinkoff_hse1:${{ needs.deploy.outputs.image_tag }} ${{ inputs.first_number }} ${{ inputs.second_number }}
+          run: docker run avdm2/tinkoff_hw1:${{ steps.get_tag.outputs.image_tag }} ${{ inputs.first_number }} ${{ inputs.second_number }}
