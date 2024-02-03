@@ -33,11 +33,11 @@
 
         - name: Build the Docker Image
           run: |
-            docker build --build-arg JAR_FILE=target/\*.jar --tag avdm2/tinkoff_hse1:${{ github.head_ref }}-${{ github.sha:0:7 }} .
-            docker push avdm2/tinkoff_hse1:${{ github.head_ref }}-${{ github.sha:0:7 }}
+            docker build --build-arg JAR_FILE=target/\*.jar --tag avdm2/tinkoff_hse1:${{ github.head_ref }}-$(echo "${{ github.sha }}" | cut -c1-7) .
+            docker push avdm2/tinkoff_hse1:${{ github.head_ref }}-$(echo "${{ github.sha }}" | cut -c1-7)
 
         - name: Push latest
           if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
           run: |
-            docker tag avdm2/tinkoff_hse1:${{ github.head_ref }}-${{ github.sha:0:7 }} avdm2/tinkoff_hse1:latest
+            docker tag avdm2/tinkoff_hse1:${{ github.head_ref }}-$(echo "${{ github.sha }}" | cut -c1-7) avdm2/tinkoff_hse1:latest
             docker push avdm2/tinkoff_hse1:latest
