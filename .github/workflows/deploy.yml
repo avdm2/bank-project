@@ -38,7 +38,7 @@
               TAG="latest"
             fi
             echo "Using Docker image tag: $TAG"
-            echo "::set-output name=image_tag::$TAG"
+            echo "image_tag=$TAG" >> "$GITHUB_OUTPUT"
 
         - name: Pull the Docker image
           run: docker pull avdm2/tinkoff_hse1:${{ needs.deploy.outputs.image_tag }}
