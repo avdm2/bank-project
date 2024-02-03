@@ -1,25 +1,19 @@
 package ru.tinkoff.hse;
 
-import java.util.InputMismatchException;
-import java.util.Scanner;
-
 public class Main {
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int a, b;
-
-        try {
-            a = scanner.nextInt();
-            b = scanner.nextInt();
-        } catch (InputMismatchException e) {
-            System.out.println("err");
+        if (args.length != 2) {
+            System.out.println("err: len(args) != 2");
             return;
         }
-        finally {
-            scanner.close();
-        }
 
-        System.out.println(a + b);
+        try {
+            int num1 = Integer.parseInt(args[0]);
+            int num2 = Integer.parseInt(args[1]);
+            System.out.println(num1 + "+" + num2 + "=" + (num1 + num2));
+        } catch (NumberFormatException e) {
+            System.out.println("err: check input");
+        }
     }
 }
