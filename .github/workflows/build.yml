@@ -4,7 +4,7 @@
     push:
       branches: ["main"]
     pull_request:
-      types: [opened, reopened, synchronize, edited]
+      types: [opened, reopened, synchronize]
 
   jobs:
     build:
@@ -29,23 +29,13 @@
             username: ${{ secrets.DOCKER_USERNAME }}
             password: ${{ secrets.DOCKER_PASSWORD }}
 
-        - name: Build the Docker Image
+        - name: Build and push the Docker Image
           run: |
-            COMMIT_HASH=$(echo "${{ github.sha }}" | cut -c1-7)
-            BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's/refs\/heads\///' | tr / _)
-          
-            if [ -z "$BRANCH_NAME" ]
-            then
-              BRANCH_NAME="main"
-            fi
-          
-            TAG="${BRANCH_NAME}-${COMMIT_HASH}"
-          
-            docker build --build-arg JAR_FILE=target/\*.jar --tag avdm2/tinkoff_hw1:$TAG .
-            docker push avdm2/tinkoff_hw1:$TAG
+            docker build --build-arg JAR_FILE=target/\*.jar --tag avdm2/tinkoff_hw1:${GITHUB_REF_NAME}-${GITHUB_SHA::7} .
+            docker push avdm2/tinkoff_hw1:${GITHUB_REF_NAME}-${GITHUB_SHA::7}
 
         - name: Push latest
-          if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
           run: |
             docker build --build-arg JAR_FILE=target/\*.jar --tag avdm2/tinkoff_hw1:latest .
             docker push avdm2/tinkoff_hw1:latest
