@@ -49,6 +49,5 @@
         - name: Push latest
           if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           run: |
-            docker image rm -f avdm2/tinkoff_hw1:latest || true
             docker build --build-arg JAR_FILE=target/\*.jar --tag avdm2/tinkoff_hw1:latest .
             docker push avdm2/tinkoff_hw1:latest
