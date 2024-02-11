@@ -2,9 +2,12 @@
 
   on:
     push:
-      branches: ["main"]
+      branches:
+        - main
     pull_request:
       types: [opened, reopened]
+      branches:
+        - main
 
   jobs:
     build:
@@ -35,7 +38,7 @@
             docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
 
         - name: Push latest
-          if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           run: |
-            docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:latest .
+            docker tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:latest
             docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:latest

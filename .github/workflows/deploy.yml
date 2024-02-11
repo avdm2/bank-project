@@ -7,6 +7,7 @@
           description: 'Docker Image tag'
           type: string
           required: false
+          default: 'latest'
         first_number:
           description: 'First number'
           type: number
@@ -31,7 +32,6 @@
             password: ${{ secrets.DOCKER_PASSWORD }}
 
         - name: Pull the Docker image
-          run: docker pull ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${{ inputs.tag || 'latest' }}
-
+          run: docker pull ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${{ inputs.tag }}
         - name: Run Docker container and display result
-          run: docker run ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${{ inputs.tag || 'latest' }} ${{ inputs.first_number }} ${{ inputs.second_number }}
+          run: docker run ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${{ inputs.tag }} ${{ inputs.first_number }} ${{ inputs.second_number }}
