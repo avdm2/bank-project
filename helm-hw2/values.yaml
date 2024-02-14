@@ -1,0 +1,25 @@
+replicaCount: 3
+
+image:
+  repository: avdm2/tinkoff_hw2
+  pullPolicy: IfNotPresent
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8081
+
+serviceAccount:
+  create: true
+  automount: true
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 70
