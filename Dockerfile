@@ -1,5 +1,7 @@
 FROM amazoncorretto:17
 
+EXPOSE 8080
+
 VOLUME /tmp
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar

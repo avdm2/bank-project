@@ -6,8 +6,8 @@ image:
   tag: latest
 
 service:
-  type: ClusterIP
-  port: 80
+  type: LoadBalancer
+  port: 8080
   targetPort: 8080
 
 serviceAccount:
@@ -21,5 +21,5 @@ autoscaling:
   enabled: true
   minReplicas: 3
   maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
+  targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 70
