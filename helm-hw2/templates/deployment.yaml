@@ -1,18 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "helm-hw2.fullname" . }}
+  name: helm-hw2
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "helm-hw2.name" . }}
-      release: {{ .Release.Name }}
+      app: helm-hw2
   template:
     metadata:
       labels:
-        app: {{ include "helm-hw2.name" . }}
-        release: {{ .Release.Name }}
+        app: helm-hw2
     spec:
       containers:
         - name: {{ .Chart.Name }}
