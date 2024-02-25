@@ -52,5 +52,5 @@ jobs:
     uses: central-university-dev/hse-ab-cicd-hw/.github/workflows/autotests.yml@main
     with:
       chart-path: ./helm-hw2
-      image-name: ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3
+      image-name: avdm2/tinkoff_hw3
       image-tag: ${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
