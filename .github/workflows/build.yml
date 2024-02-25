@@ -37,14 +37,14 @@ jobs:
 
       - name: Build and push the Docker Image
         run: |
-          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
+          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
 
       - name: Push latest
         if: ${{ github.ref_name == 'main' }}
         run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:latest
 
   autotest:
     needs: build
