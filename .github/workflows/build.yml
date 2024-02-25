@@ -11,6 +11,7 @@ on:
       - feedback
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
 
@@ -44,11 +45,10 @@ jobs:
           docker tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw1:latest
 
-  jobs:
-    autotest:
-      needs: build
-      uses: central-university-dev/hse-ab-cicd-hw/.github/workflows/autotests.yml@main
-      with:
-        chart-path: ./helm-hw2
-        image-name: ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3
-        image-tag: ${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
+  autotest:
+    needs: build
+    uses: central-university-dev/hse-ab-cicd-hw/.github/workflows/autotests.yml@main
+    with:
+      chart-path: ./helm-hw2
+      image-name: ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3
+      image-tag: ${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
