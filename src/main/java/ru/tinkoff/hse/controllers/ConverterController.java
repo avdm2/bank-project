@@ -23,7 +23,7 @@ public class ConverterController {
         this.converterService = converterService;
     }
 
-    @GetMapping
+    @GetMapping("/convert")
     public ResponseEntity<?> convert(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal amount)
             throws JsonProcessingException, ConnectException {
         try {

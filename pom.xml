@@ -31,24 +31,16 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>3.2.3</version>
         </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>ru.tinkoff.hse.Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <outputDirectory>${project.build.directory}/</outputDirectory>
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
         </plugins>

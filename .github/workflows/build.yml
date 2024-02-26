@@ -1,11 +1,6 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches:
-      - main
-      - feedback
-      - HW3
   pull_request:
     types: [ opened, reopened ]
     branches:
