@@ -12,9 +12,9 @@ import ru.tinkoff.hse.models.RatesResponse;
 public class RatesRequestService {
 
     public RatesResponse getRatesFromRequest() throws JsonProcessingException {
-        ResponseEntity<String> response = new RestTemplate().getForEntity("http://rates:8080/rates", String.class);
+        ResponseEntity<String> response = new RestTemplate().getForEntity("/rates", String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new InvalidEndpointRequestException("Rates is unavailable", "http://rates:8080/rates");
+            throw new InvalidEndpointRequestException("Rates is unavailable", "/rates");
         }
 
         return new ObjectMapper().readValue(response.getBody(), RatesResponse.class);
