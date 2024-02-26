@@ -6,10 +6,6 @@ on:
       - main
       - feedback
       - HW3
-  pull_request:
-    branches:
-      - main
-      - feedback
 
 jobs:
 
