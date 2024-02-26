@@ -13,7 +13,7 @@ import java.net.ConnectException;
 public class RatesRequestService {
 
     public RatesResponse getRatesFromRequest() throws ConnectException, JsonProcessingException {
-        ResponseEntity<String> response = new RestTemplate().getForEntity("/rates", String.class);
+        ResponseEntity<String> response = new RestTemplate().getForEntity("http://rates:8080/rates", String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new ConnectException("Rates is unavailable");
         }
