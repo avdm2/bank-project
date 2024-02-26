@@ -2,20 +2,19 @@ package ru.tinkoff.hse.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.tinkoff.hse.models.RatesResponse;
 
-import java.net.ConnectException;
-
 @Service
 public class RatesRequestService {
 
-    public RatesResponse getRatesFromRequest() throws ConnectException, JsonProcessingException {
+    public RatesResponse getRatesFromRequest() throws JsonProcessingException {
         ResponseEntity<String> response = new RestTemplate().getForEntity("http://rates:8080/rates", String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new ConnectException("Rates is unavailable");
+            throw new InvalidEndpointRequestException("Rates is unavailable", "http://rates:8080/rates");
         }
 
         return new ObjectMapper().readValue(response.getBody(), RatesResponse.class);

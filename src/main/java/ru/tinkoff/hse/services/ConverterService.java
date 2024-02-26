@@ -7,7 +7,6 @@ import ru.tinkoff.hse.models.ConverterResponse;
 import java.lang.module.FindException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.ConnectException;
 import java.util.Map;
 
 @Service
@@ -19,8 +18,7 @@ public class ConverterService {
         this.ratesRequestService = ratesRequestService;
     }
 
-    public ConverterResponse convert(String from, String to, BigDecimal amount) throws JsonProcessingException,
-            ConnectException {
+    public ConverterResponse convert(String from, String to, BigDecimal amount) throws JsonProcessingException {
         Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
 
         if (amount.intValue() <= 0) {

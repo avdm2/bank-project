@@ -12,7 +12,6 @@ import ru.tinkoff.hse.services.ConverterService;
 
 import java.lang.module.FindException;
 import java.math.BigDecimal;
-import java.net.ConnectException;
 
 @RestController
 public class ConverterController {
@@ -25,7 +24,7 @@ public class ConverterController {
 
     @GetMapping("/convert")
     public ResponseEntity<?> convert(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal amount)
-            throws JsonProcessingException, ConnectException {
+            throws JsonProcessingException {
         try {
             return ResponseEntity.ok().body(converterService.convert(from, to, amount));
         } catch (IllegalArgumentException | FindException exception) {
