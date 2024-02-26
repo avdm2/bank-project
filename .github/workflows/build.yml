@@ -1,11 +1,11 @@
 name: Docker Image CI
 
 on:
-  push:
+  pull_request:
     branches:
-      - main
-      - feedback
-      - HW3
+      - '*'
+    paths:
+      - 'HW3/**'
 
 jobs:
 
