@@ -43,14 +43,14 @@ livenessProbe:
   httpGet:
     path: /actuator/health
     port: 8080
-  initialDelaySeconds: 60
+  initialDelaySeconds: 120
   timeoutSeconds: 5
   periodSeconds: 10
 readinessProbe:
   httpGet:
     path: /actuator/health
     port: 8080
-  initialDelaySeconds: 60
+  initialDelaySeconds: 120
   timeoutSeconds: 5
   periodSeconds: 10
 
@@ -58,8 +58,8 @@ autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  targetCPUUtilizationPercentage: 90
+  targetMemoryUtilizationPercentage: 90
 
 volumes: []
 
