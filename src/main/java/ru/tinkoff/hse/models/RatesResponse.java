@@ -12,6 +12,6 @@ import java.util.Map;
 @Accessors(chain = true)
 public class RatesResponse {
 
-    private String base;
+    private Currency base;
     private Map<String, BigDecimal> rates;
 }

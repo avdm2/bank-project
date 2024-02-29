@@ -3,6 +3,7 @@ package ru.tinkoff.hse.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.models.ConverterResponse;
+import ru.tinkoff.hse.models.Currency;
 
 import java.lang.module.FindException;
 import java.math.BigDecimal;
@@ -18,22 +19,22 @@ public class ConverterService {
         this.ratesRequestService = ratesRequestService;
     }
 
-    public ConverterResponse convert(String from, String to, BigDecimal amount) throws JsonProcessingException {
+    public ConverterResponse convert(Currency from, Currency to, BigDecimal amount) throws JsonProcessingException {
         Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
 
         if (amount.intValue() <= 0) {
             throw new IllegalArgumentException("Отрицательная сумма");
         }
 
-        if (!rates.containsKey(from)) {
-            throw new FindException("Валюта " + from + " недоступна");
+        if (!rates.containsKey(from.getValue())) {
+            throw new FindException("Валюта " + from.getValue() + " недоступна");
         }
-        if (!rates.containsKey(to)) {
-            throw new FindException("Валюта " + to + " недоступна");
+        if (!rates.containsKey(to.getValue())) {
+            throw new FindException("Валюта " + to.getValue() + " недоступна");
         }
 
-        BigDecimal resultAmount = amount.multiply(rates.get(from)).divide(rates.get(to), 2, RoundingMode.HALF_EVEN);
+        BigDecimal resultAmount = amount.multiply(rates.get(from.getValue())).divide(rates.get(to.getValue()), 2, RoundingMode.HALF_EVEN);
 
-        return new ConverterResponse().setAmount(resultAmount).setCurrency(to);
+        return new ConverterResponse().setAmount(resultAmount).setCurrency(to.getValue());
     }
 }

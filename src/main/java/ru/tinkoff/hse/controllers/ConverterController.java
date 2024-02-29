@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import ru.tinkoff.hse.models.ConverterError;
+import ru.tinkoff.hse.models.Currency;
 import ru.tinkoff.hse.services.ConverterService;
 
 
@@ -23,7 +24,7 @@ public class ConverterController {
     }
 
     @GetMapping("/convert")
-    public ResponseEntity<?> convert(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal amount)
+    public ResponseEntity<?> convert(@RequestParam Currency from, @RequestParam Currency to, @RequestParam BigDecimal amount)
             throws JsonProcessingException {
         try {
             return ResponseEntity.ok().body(converterService.convert(from, to, amount));
