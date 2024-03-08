@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/tinkoff2_hw4}
+    driverClassName: org.postgresql.Driver
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:admin}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        order_by.default_null_ordering: last
+        format_sql: true
+    open-in-view: false
+    show-sql: true
+    generate-ddl: true
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+url:
+  converter: "http://localhost:8080/convert"

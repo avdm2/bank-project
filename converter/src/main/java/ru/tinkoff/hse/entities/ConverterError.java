@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.models;
+package ru.tinkoff.hse.entities;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +9,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ConverterError {
 
-    String message;
+    private String message;
 }
 

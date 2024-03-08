@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.models;
+package ru.tinkoff.hse.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,11 +6,11 @@ import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
-@Getter
 @Setter
+@Getter
 @Accessors(chain = true)
 public class ConverterResponse {
 
-    String currency;
-    BigDecimal amount;
+    private String currency;
+    private BigDecimal amount;
 }

@@ -2,8 +2,8 @@ package ru.tinkoff.hse.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
-import ru.tinkoff.hse.models.ConverterResponse;
-import ru.tinkoff.hse.models.Currency;
+import ru.tinkoff.hse.entities.ConverterResponse;
+import ru.tinkoff.hse.entities.Currency;
 
 import java.lang.module.FindException;
 import java.math.BigDecimal;

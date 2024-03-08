@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.models;
+package ru.tinkoff.hse.entities;
 
 public enum Currency {
 
