@@ -2,8 +2,8 @@ replicaCount: 2
 
 image:
   repository: avdm2/tinkoff_hw3
-  pullPolicy: Always
-  tag: 6-merge-f7a6ae9
+  pullPolicy: IfNotPresent
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ""

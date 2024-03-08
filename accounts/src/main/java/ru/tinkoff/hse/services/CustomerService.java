@@ -27,7 +27,7 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
 
-    @Value("${url.converter}")
+    @Value("${app.converter-url}")
     private String converterUrl;
 
     public CustomerService(CustomerRepository customerRepository, AccountRepository accountRepository) {

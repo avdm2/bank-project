@@ -3,3 +3,10 @@ management:
     health:
       probes:
         enabled: true
+
+app:
+  rates-url: ${RATES_URL:http://localhost:8080/rates}
+  keycloak-url: ${KEYCLOAK_URL}
+  keycloak-realm: ${KEYCLOAK_REALM}
+  client-id: ${CLIENT_ID}
+  client-secret: ${ClIENT_SECRET}

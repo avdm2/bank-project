@@ -2,8 +2,7 @@ name: Docker Image CI
 
 on:
   pull_request:
-    branches:
-      - '*'
+    branches: [ "feedback" ]
 
 jobs:
 
@@ -29,21 +28,33 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push the Docker Image
+      - name: [Converter] Build and push the Docker Image
         run: |
-          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
+          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/hw3_converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ./converter
+          docker push ${{ secrets.DOCKER_USERNAME }}/hw3_converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
 
-      - name: Push latest
+      - name: [Converter] Push latest
         if: ${{ github.ref_name == 'main' }}
         run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/tinkoff_hw3:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/hw3_converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/hw3_converter:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/hw3_converter:latest
+
+      - name: [Accounts] Build and push the Docker Image
+        run: |
+          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ./accounts
+          docker push ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
+
+      - name: [Accounts] Push latest
+        if: ${{ github.ref_name == 'main' }}
+        run: |
+          docker tag ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:latest
 
   autotest:
     needs: build
-    uses: central-university-dev/hse-ab-cicd-hw/.github/workflows/autotests.yml@main
+    uses: central-university-dev/hse-ab-cicd-hw/.github/workflows/autotests-hw4.yml@main
     with:
       chart-path: ./helm-hw2
-      image-name: avdm2/tinkoff_hw3
+      converter-image-name: avdm2/hw3_converter
+      accounts-image-name: avdm2/hw3_accounts
       image-tag: ${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
