@@ -5,6 +5,10 @@ image:
   pullPolicy: IfNotPresent
   tag: latest
 
+extraEnv:
+  - name: ENV_NAME
+    value: some-value
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
