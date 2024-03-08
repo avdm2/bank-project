@@ -28,23 +28,23 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: [Converter] Build and push the Docker Image
+      - name: Build and push the Docker Image - CONVERTER
         run: |
           docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/hw3_converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ./converter
           docker push ${{ secrets.DOCKER_USERNAME }}/hw3_converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
 
-      - name: [Converter] Push latest
+      - name: Push latest - CONVERTER
         if: ${{ github.ref_name == 'main' }}
         run: |
           docker tag ${{ secrets.DOCKER_USERNAME }}/hw3_converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/hw3_converter:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/hw3_converter:latest
 
-      - name: [Accounts] Build and push the Docker Image
+      - name: Build and push the Docker Image - ACCOUNTS
         run: |
           docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ./accounts
           docker push ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
 
-      - name: [Accounts] Push latest
+      - name: Push latest - ACCOUNTS
         if: ${{ github.ref_name == 'main' }}
         run: |
           docker tag ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/hw3_accounts:latest
