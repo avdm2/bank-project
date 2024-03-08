@@ -6,8 +6,28 @@ image:
   tag: latest
 
 extraEnv:
-  - name: ENV_NAME
-    value: some-value
+  - name: DB_HOST
+    value: "localhost"
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_NAME
+    value: "db_name"
+  - name: DB_USER
+    value: "postgres"
+  - name: DB_PASSWORD
+    value: "postgres"
+  - name: CONVERTER_URL
+    value: "http//localhost:8080/convert"
+  - name: RATES_URL
+    value: "http://localhost:8080/rates"
+  - name: KEYCLOAK_URL
+    value: "http://smth:1234"
+  - name: KEYCLOAK_REALM
+    value: "keycloak_realm"
+  - name: CLIENT_ID
+    value: "client_id"
+  - name: CLIENT_SECRET
+    value: "client_secret"
 
 imagePullSecrets: []
 nameOverride: ""
