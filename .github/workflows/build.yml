@@ -2,8 +2,7 @@ name: Docker Image CI
 
 on:
   pull_request:
-    branches:
-      - '*'
+    branches: [ "feedback" ]
 
 jobs:
 
