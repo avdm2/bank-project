@@ -36,16 +36,16 @@ public class CustomerService {
     }
 
     public CustomerCreationResponse createCustomer(CustomerCreationRequest request) {
-        if (request.getBirthday() == null || request.getFirstname() == null || request.getLastname() == null) {
+        if (request.getBirthDay() == null || request.getFirstName() == null || request.getLastName() == null) {
             throw new IllegalArgumentException("check required fields");
         }
 
-        validateBirthdateOrElseThrow(request.getBirthday());
+        validateBirthdateOrElseThrow(request.getBirthDay());
 
         Customer customer = new Customer()
-                .setFirstname(request.getFirstname())
-                .setLastname(request.getLastname())
-                .setBirthday(request.getBirthday());
+                .setFirstname(request.getFirstName())
+                .setLastname(request.getLastName())
+                .setBirthday(request.getBirthDay());
         customerRepository.save(customer);
 
         return new CustomerCreationResponse().setCustomerId(customer.getId());

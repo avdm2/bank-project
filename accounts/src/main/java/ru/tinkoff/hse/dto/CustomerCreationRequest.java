@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class CustomerCreationRequest {
 
-    private String firstname;
-    private String lastname;
-    private String birthday;
+    private String firstName;
+    private String lastName;
+    private String birthDay;
 }
