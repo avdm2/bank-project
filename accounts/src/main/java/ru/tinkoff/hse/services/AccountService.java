@@ -2,6 +2,8 @@ package ru.tinkoff.hse.services;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +26,14 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final KeycloakTokenRequestService keycloakTokenRequestService;
 
     @Value("${app.converter-url}")
     private String converterUrl;
 
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, KeycloakTokenRequestService keycloakTokenRequestService) {
         this.accountRepository = accountRepository;
+        this.keycloakTokenRequestService = keycloakTokenRequestService;
     }
 
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
@@ -112,6 +116,9 @@ public class AccountService {
             receiverAccount.setAmount(receiverAccount.getAmount().add(amountInSenderCurrency));
             senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
         } else {
+            String token = keycloakTokenRequestService.getToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + token);
             RestTemplate restTemplate = new RestTemplateBuilder()
                     .setConnectTimeout(Duration.ofSeconds(10))
                     .setReadTimeout(Duration.ofSeconds(10))
@@ -120,7 +127,9 @@ public class AccountService {
                     "?from=" + senderAccount.getCurrency() +
                     "&to=" + receiverAccount.getCurrency() +
                     "&amount=" + amountInSenderCurrency;
-            ConverterResponse converterResponse = restTemplate.getForEntity(requestUrl, ConverterResponse.class).getBody();
+            ConverterResponse converterResponse = restTemplate
+                    .getForEntity(requestUrl, ConverterResponse.class, new HttpEntity<>(null, headers))
+                    .getBody();
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
             }
