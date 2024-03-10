@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<String> handleNullPointerException(NullPointerException e) {
-        return ResponseEntity.status(500).body(e.getMessage());
+        return ResponseEntity.status(501).body(e.getMessage());
     }
 
     @ExceptionHandler(JsonProcessingException.class)
