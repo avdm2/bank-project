@@ -1,5 +1,6 @@
 package ru.tinkoff.hse.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
@@ -66,6 +68,7 @@ public class CustomerService {
             throw new IllegalArgumentException("accounts for customer with such id not found");
         }
 
+        log.info("getting token");
         String token = keycloakTokenRequestService.getToken();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
@@ -80,6 +83,7 @@ public class CustomerService {
                     "?from=" + account.getCurrency() +
                     "&to=" + currency +
                     "&amount=" + account.getAmount();
+            log.info("sending request");
             ConverterResponse converterResponse = restTemplate
                     .getForEntity(requestUrl, ConverterResponse.class, new HttpEntity<>(null, headers))
                     .getBody();
