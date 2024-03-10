@@ -17,9 +17,6 @@ import ru.tinkoff.hse.repositories.CustomerRepository;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,9 +42,6 @@ public class CustomerService {
         if (request.getBirthDay() == null || request.getFirstName() == null || request.getLastName() == null) {
             throw new IllegalArgumentException("check required fields");
         }
-
-        validateBirthdateOrElseThrow(request.getBirthDay());
-
         Customer customer = new Customer()
                 .setFirstname(request.getFirstName())
                 .setLastname(request.getLastName())
@@ -96,23 +90,5 @@ public class CustomerService {
         }
 
         return new GetTotalBalanceResponse().setBalance(balance).setCurrency(currency);
-    }
-
-    private void validateBirthdateOrElseThrow(String birthdate) {
-        LocalDate birthday;
-        try {
-            birthday = LocalDate.parse(birthdate);
-        } catch (DateTimeParseException exception) {
-            throw new IllegalArgumentException("cannot parse birthdate format");
-        }
-
-        if (birthday.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("illegal birthdate");
-        }
-
-        int age = Period.between(birthday, LocalDate.now()).getYears();
-        if (age < 14 || age > 120) {
-            throw new IllegalArgumentException("invalid age");
-        }
     }
 }

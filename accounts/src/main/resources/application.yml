@@ -24,7 +24,7 @@ management:
 
 app:
   converter-url: ${CONVERTER_URL:http://localhost:8080/convert}
-  keycloak-url: ${KEYCLOAK_URL}
-  keycloak-realm: ${KEYCLOAK_REALM}
-  client-id: ${CLIENT_ID}
-  client-secret: ${ClIENT_SECRET}
+  keycloak-url: ${KEYCLOAK_URL:http://localhost:8080/kclk}
+  keycloak-realm: ${KEYCLOAK_REALM:realm}
+  client-id: ${CLIENT_ID:123}
+  client-secret: ${CLIENT_SECRET:123}

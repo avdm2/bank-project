@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "customers")
 @Getter
@@ -23,5 +25,5 @@ public class Customer {
     private String firstname;
     private String lastname;
 
-    private String birthday;
+    private LocalDate birthday;
 }
