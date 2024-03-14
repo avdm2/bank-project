@@ -9,11 +9,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.tinkoff.hse.models.KeycloakTokenResponse;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import ru.tinkoff.hse.dto.KeycloakTokenResponse;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 @Service
 public class KeycloakTokenRequestService {
@@ -34,14 +34,14 @@ public class KeycloakTokenRequestService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        HashMap<String, String> body = new LinkedHashMap<>();
-        body.put("client_id", clientId);
-        body.put("client_secret", clientSecret);
-        body.put("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
+        body.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
 
-        HttpEntity<HashMap<String, String>> entity = new HttpEntity<>(body, headers);
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<KeycloakTokenResponse> response = new RestTemplateBuilder()
+        ResponseEntity<ru.tinkoff.hse.dto.KeycloakTokenResponse> response = new RestTemplateBuilder()
                 .setConnectTimeout(Duration.ofSeconds(10))
                 .setReadTimeout(Duration.ofSeconds(10))
                 .build()
