@@ -79,7 +79,7 @@ public class CustomerService {
                     .setReadTimeout(Duration.ofSeconds(10))
                     .build();
 
-            String requestUrl = converterUrl + "/convert/" +
+            String requestUrl = converterUrl + "/convert" +
                     "?from=" + account.getCurrency() +
                     "&to=" + currency +
                     "&amount=" + account.getAmount();
