@@ -67,16 +67,18 @@ public class CustomerService {
             throw new IllegalArgumentException("accounts for customer with such id not found");
         }
 
-        String token = keycloakTokenRequestService.getToken();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
-        RestTemplate restTemplate = new RestTemplateBuilder()
-                .setConnectTimeout(Duration.ofSeconds(10))
-                .setReadTimeout(Duration.ofSeconds(10))
-                .build();
+
 
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
+            String token = keycloakTokenRequestService.getToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + token);
+            RestTemplate restTemplate = new RestTemplateBuilder()
+                    .setConnectTimeout(Duration.ofSeconds(10))
+                    .setReadTimeout(Duration.ofSeconds(10))
+                    .build();
+
             String requestUrl = converterUrl + "/convert/" +
                     "?from=" + account.getCurrency() +
                     "&to=" + currency +
