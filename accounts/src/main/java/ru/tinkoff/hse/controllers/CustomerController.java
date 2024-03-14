@@ -29,8 +29,8 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}/balance")
-    public ResponseEntity<GetTotalBalanceResponse> getTotalBalance(@PathVariable Integer customerId,
-                                                                   @RequestParam String currency) {
+    public ResponseEntity<GetTotalBalanceResponse> getTotalBalance(@PathVariable("customerId") Integer customerId,
+                                                                   @RequestParam("currency") String currency) {
         return ResponseEntity.ok().body(customerService.getTotalBalanceInCurrency(customerId, currency));
     }
 }

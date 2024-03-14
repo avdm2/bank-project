@@ -3,6 +3,7 @@ package ru.tinkoff.hse.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.tinkoff.hse.dto.ConverterResponse;
@@ -65,20 +66,17 @@ public class CustomerService {
             throw new IllegalArgumentException("accounts for customer with such id not found");
         }
 
-
-
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
             String token = keycloakTokenRequestService.getToken();
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
 
-            String requestUrl = converterUrl + "/convert" +
-                    "?from=" + account.getCurrency() +
-                    "&to=" + currency +
-                    "&amount=" + account.getAmount();
             ConverterResponse converterResponse = new RestTemplate()
-                    .getForEntity(requestUrl, ConverterResponse.class, new HttpEntity<>(null, headers))
+                    .exchange(converterUrl + "/convert?from=" + account.getCurrency() + "&to=" + currency + "&amount=" + account.getAmount(),
+                            HttpMethod.GET,
+                            new HttpEntity<>(null, headers),
+                            ConverterResponse.class)
                     .getBody();
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");

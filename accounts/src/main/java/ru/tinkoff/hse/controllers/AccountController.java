@@ -30,12 +30,12 @@ public class AccountController {
     }
 
     @GetMapping("/{accountNumber}")
-    public ResponseEntity<GetAccountResponse> getAccount(@PathVariable Integer accountNumber) {
+    public ResponseEntity<GetAccountResponse> getAccount(@PathVariable("accountNumber") Integer accountNumber) {
         return ResponseEntity.ok().body(accountService.getAccount(accountNumber));
     }
 
     @PostMapping("/{accountNumber}/top-up")
-    public ResponseEntity<?> topUp(@PathVariable Integer accountNumber, @RequestBody TopUpRequest request) {
+    public ResponseEntity<?> topUp(@PathVariable("accountNumber") Integer accountNumber, @RequestBody TopUpRequest request) {
         accountService.topUp(accountNumber, request);
         return ResponseEntity.ok().build();
     }

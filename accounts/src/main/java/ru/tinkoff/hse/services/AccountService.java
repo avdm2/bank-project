@@ -3,6 +3,7 @@ package ru.tinkoff.hse.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,12 +118,12 @@ public class AccountService {
             String token = keycloakTokenRequestService.getToken();
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
-            String requestUrl = converterUrl + "/convert" +
-                    "?from=" + senderAccount.getCurrency() +
-                    "&to=" + receiverAccount.getCurrency() +
-                    "&amount=" + amountInSenderCurrency;
+
             ConverterResponse converterResponse = new RestTemplate()
-                    .getForEntity(requestUrl, ConverterResponse.class, new HttpEntity<>(null, headers))
+                    .exchange(converterUrl + "/convert?from=" + senderAccount.getCurrency() + "&to=" + receiverAccount.getCurrency() + "&amount=" + amountInSenderCurrency,
+                            HttpMethod.GET,
+                            new HttpEntity<>(null, headers),
+                            ConverterResponse.class)
                     .getBody();
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
