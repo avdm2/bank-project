@@ -60,7 +60,7 @@ public class KeycloakAuthenticationFilter extends OncePerRequestFilter {
                 .setConnectTimeout(Duration.ofSeconds(10))
                 .setReadTimeout(Duration.ofSeconds(10))
                 .build()
-                .getForEntity(keycloakUrl + "/realms" + keycloakRealm + "/protocol/openid-connect/certs", Void.class,
+                .getForEntity(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/certs", Void.class,
                         new HttpEntity<>(null, headers))
                 .getStatusCode()
                 .is2xxSuccessful();

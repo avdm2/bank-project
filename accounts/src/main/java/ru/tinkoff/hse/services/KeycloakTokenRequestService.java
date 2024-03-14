@@ -29,7 +29,7 @@ public class KeycloakTokenRequestService {
                 .setConnectTimeout(Duration.ofSeconds(10))
                 .setReadTimeout(Duration.ofSeconds(10))
                 .build()
-                .postForEntity(keycloakUrl + "/realms" + keycloakRealm + "/protocol/openid-connect/token",
+                .postForEntity(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token",
                         new KeycloakTokenRequest().setClientId(clientId).setClientSecret(clientSecret), String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new InvalidEndpointRequestException(
