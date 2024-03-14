@@ -77,7 +77,7 @@ public class CustomerService {
 
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
-            String requestUrl = converterUrl +
+            String requestUrl = converterUrl + "/convert/" +
                     "?from=" + account.getCurrency() +
                     "&to=" + currency +
                     "&amount=" + account.getAmount();
