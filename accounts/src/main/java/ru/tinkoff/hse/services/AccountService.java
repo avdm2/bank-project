@@ -123,7 +123,7 @@ public class AccountService {
                     .setConnectTimeout(Duration.ofSeconds(10))
                     .setReadTimeout(Duration.ofSeconds(10))
                     .build();
-            String requestUrl = converterUrl +
+            String requestUrl = converterUrl + "/convert/" +
                     "?from=" + senderAccount.getCurrency() +
                     "&to=" + receiverAccount.getCurrency() +
                     "&amount=" + amountInSenderCurrency;
