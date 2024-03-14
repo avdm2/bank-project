@@ -17,5 +17,5 @@ public class KeycloakTokenRequest {
     private String clientSecret;
 
     @JsonProperty("grant_type")
-    private String grantType;
+    private String grantType = "urn:ietf:params:oauth:grant-type:token-exchange";
 }

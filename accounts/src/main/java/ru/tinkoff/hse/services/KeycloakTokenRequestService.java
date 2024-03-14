@@ -32,8 +32,7 @@ public class KeycloakTokenRequestService {
                 .postForEntity(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token",
                         new KeycloakTokenRequest()
                                 .setClientId(clientId)
-                                .setClientSecret(clientSecret)
-                                .setGrantType("client_credentials"),
+                                .setClientSecret(clientSecret),
                         String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new InvalidEndpointRequestException(
