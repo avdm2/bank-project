@@ -1,7 +1,6 @@
 package ru.tinkoff.hse.services;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,6 @@ import ru.tinkoff.hse.entities.Account;
 import ru.tinkoff.hse.repositories.AccountRepository;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -119,15 +117,11 @@ public class AccountService {
             String token = keycloakTokenRequestService.getToken();
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
-            RestTemplate restTemplate = new RestTemplateBuilder()
-                    .setConnectTimeout(Duration.ofSeconds(10))
-                    .setReadTimeout(Duration.ofSeconds(10))
-                    .build();
             String requestUrl = converterUrl + "/convert" +
                     "?from=" + senderAccount.getCurrency() +
                     "&to=" + receiverAccount.getCurrency() +
                     "&amount=" + amountInSenderCurrency;
-            ConverterResponse converterResponse = restTemplate
+            ConverterResponse converterResponse = new RestTemplate()
                     .getForEntity(requestUrl, ConverterResponse.class, new HttpEntity<>(null, headers))
                     .getBody();
             if (converterResponse == null) {
