@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.entities;
+package ru.tinkoff.hse.models;
 
 import lombok.Getter;
 import lombok.Setter;

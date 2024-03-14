@@ -6,6 +6,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.KeycloakTokenRequest;
+import ru.tinkoff.hse.dto.KeycloakTokenResponse;
 
 import java.time.Duration;
 
@@ -25,7 +26,7 @@ public class KeycloakTokenRequestService {
     private String clientId;
 
     public String getToken() {
-        ResponseEntity<String> response = new RestTemplateBuilder()
+        ResponseEntity<KeycloakTokenResponse> response = new RestTemplateBuilder()
                 .setConnectTimeout(Duration.ofSeconds(10))
                 .setReadTimeout(Duration.ofSeconds(10))
                 .build()
@@ -33,12 +34,12 @@ public class KeycloakTokenRequestService {
                         new KeycloakTokenRequest()
                                 .setClientId(clientId)
                                 .setClientSecret(clientSecret),
-                        String.class);
+                        KeycloakTokenResponse.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new InvalidEndpointRequestException(
                     "Keycloak is unavailable", "{keycloakUrl}/realms/{keycloakRealm}/protocol/openid-connect/token"
             );
         }
-        return response.getBody();
+        return response.getBody().getAccessToken();
     }
 }

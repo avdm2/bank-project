@@ -1,16 +1,17 @@
-package ru.tinkoff.hse.entities;
+package ru.tinkoff.hse.models;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ConverterResponse {
+public class RatesResponse {
 
-    private String currency;
-    private BigDecimal amount;
+    private Currency base;
+    private Map<String, BigDecimal> rates;
 }

@@ -9,7 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.tinkoff.hse.entities.RatesResponse;
+import ru.tinkoff.hse.models.RatesResponse;
 
 import java.time.Duration;
 

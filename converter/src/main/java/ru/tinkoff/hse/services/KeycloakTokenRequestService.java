@@ -5,7 +5,8 @@ import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.tinkoff.hse.entities.KeycloakTokenRequest;
+import ru.tinkoff.hse.models.KeycloakTokenRequest;
+import ru.tinkoff.hse.models.KeycloakTokenResponse;
 
 import java.time.Duration;
 
@@ -25,17 +26,17 @@ public class KeycloakTokenRequestService {
     private String clientId;
 
     public String getToken() {
-        ResponseEntity<String> response = new RestTemplateBuilder()
+        ResponseEntity<KeycloakTokenResponse> response = new RestTemplateBuilder()
                 .setConnectTimeout(Duration.ofSeconds(10))
                 .setReadTimeout(Duration.ofSeconds(10))
                 .build()
-                .postForEntity(keycloakUrl + "/realms" + keycloakRealm + "/protocol/openid-connect/token",
-                        new KeycloakTokenRequest().setClientId(clientId).setClientSecret(clientSecret), String.class);
+                .postForEntity(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token",
+                        new KeycloakTokenRequest().setClientId(clientId).setClientSecret(clientSecret), KeycloakTokenResponse.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new InvalidEndpointRequestException(
                     "Keycloak is unavailable", "{keycloakUrl}/realms/{keycloakRealm}/protocol/openid-connect/token"
             );
         }
-        return response.getBody();
+        return response.getBody().getAccessToken();
     }
 }
