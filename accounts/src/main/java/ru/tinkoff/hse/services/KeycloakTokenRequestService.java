@@ -2,7 +2,6 @@ package ru.tinkoff.hse.services;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,9 +13,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ru.tinkoff.hse.dto.KeycloakTokenResponse;
-
-import java.time.Duration;
-import java.util.Objects;
 
 @Service
 public class KeycloakTokenRequestService {
@@ -44,10 +40,7 @@ public class KeycloakTokenRequestService {
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
 
-        RestTemplate restTemplate = new RestTemplateBuilder()
-                .setConnectTimeout(Duration.ofSeconds(10))
-                .setReadTimeout(Duration.ofSeconds(10))
-                .build();
+        RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new FormHttpMessageConverter());
 
         ResponseEntity<KeycloakTokenResponse> response = restTemplate
@@ -55,11 +48,11 @@ public class KeycloakTokenRequestService {
                         HttpMethod.POST,
                         entity,
                         KeycloakTokenResponse.class);
-        if (!response.getStatusCode().is2xxSuccessful()) {
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             throw new InvalidEndpointRequestException(
                     "Keycloak is unavailable", "{keycloakUrl}/realms/{keycloakRealm}/protocol/openid-connect/token"
             );
         }
-        return Objects.requireNonNull(response.getBody()).getAccessToken();
+        return response.getBody().getAccessToken();
     }
 }
