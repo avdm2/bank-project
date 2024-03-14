@@ -17,5 +17,5 @@ public class KeycloakTokenRequest {
     private String clientSecret;
 
     @JsonProperty("grant_type")
-    private String grantType = "client_credentials";
+    private String grantType;
 }

@@ -30,7 +30,11 @@ public class KeycloakTokenRequestService {
                 .setReadTimeout(Duration.ofSeconds(10))
                 .build()
                 .postForEntity(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token",
-                        new KeycloakTokenRequest().setClientId(clientId).setClientSecret(clientSecret), String.class);
+                        new KeycloakTokenRequest()
+                                .setClientId(clientId)
+                                .setClientSecret(clientSecret)
+                                .setGrantType("client_credentials"),
+                        String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new InvalidEndpointRequestException(
                     "Keycloak is unavailable", "{keycloakUrl}/realms/{keycloakRealm}/protocol/openid-connect/token"
