@@ -1,5 +1,6 @@
 package ru.tinkoff.hse.services;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +14,8 @@ public class RatesRequestService {
 
     private final KeycloakTokenRequestService keycloakTokenRequestService;
 
-    // FIXME: ratesurl
+    @Value("${app.rates-url}")
+    private String ratesUrl;
 
     public RatesRequestService(KeycloakTokenRequestService keycloakTokenRequestService) {
         this.keycloakTokenRequestService = keycloakTokenRequestService;
@@ -24,11 +26,11 @@ public class RatesRequestService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         ResponseEntity<RatesResponse> response = new RestTemplate()
-                .getForEntity("http://rates:8080/rates",
+                .getForEntity(ratesUrl + "/rates",
                         RatesResponse.class,
                         new HttpEntity<>(null, headers));
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new InvalidEndpointRequestException("Rates is unavailable", "http://rates:8080/rates");
+            throw new InvalidEndpointRequestException("Rates is unavailable", ratesUrl + "/rates");
         }
 
         return response.getBody();

@@ -3,7 +3,6 @@ package ru.tinkoff.hse.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.tinkoff.hse.dto.ConverterResponse;
@@ -74,10 +73,9 @@ public class CustomerService {
             headers.set("Authorization", "Bearer " + token);
 
             ConverterResponse converterResponse = new RestTemplate()
-                    .exchange(converterUrl + "/convert?from=" + account.getCurrency() + "&to=" + currency + "&amount=" + account.getAmount(),
-                            HttpMethod.GET,
-                            new HttpEntity<String>(null, headers),
-                            ConverterResponse.class)
+                    .getForEntity(converterUrl + "/convert?from=" + account.getCurrency() + "&to=" + currency + "&amount=" + account.getAmount(),
+                            ConverterResponse.class,
+                            new HttpEntity<String>(null, headers))
                     .getBody();
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
