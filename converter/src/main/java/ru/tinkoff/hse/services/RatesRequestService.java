@@ -7,7 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.tinkoff.hse.dto.RatesResponse;
+import ru.tinkoff.hse.models.RatesResponse;
 
 @Service
 public class RatesRequestService {

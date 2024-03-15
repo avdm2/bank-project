@@ -69,8 +69,6 @@ public class CustomerService {
 
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
-            log.info("getTotalBalanceInCurrency={}",
-                    converterUrl + "/convert?from=" + account.getCurrency() + "&to=" + currency + "&amount=" + account.getAmount());
 
             String token = keycloakTokenRequestService.getToken();
             HttpHeaders headers = new HttpHeaders();

@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.tinkoff.hse.dto.components.Currency;
+import ru.tinkoff.hse.models.components.Currency;
 import ru.tinkoff.hse.services.ConverterService;
 
 import java.math.BigDecimal;

@@ -1,8 +1,8 @@
 package ru.tinkoff.hse.services;
 
 import org.springframework.stereotype.Service;
-import ru.tinkoff.hse.dto.ConverterResponse;
-import ru.tinkoff.hse.dto.components.Currency;
+import ru.tinkoff.hse.models.ConverterResponse;
+import ru.tinkoff.hse.models.components.Currency;
 
 import java.lang.module.FindException;
 import java.math.BigDecimal;

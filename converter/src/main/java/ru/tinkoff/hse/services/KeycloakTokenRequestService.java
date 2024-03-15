@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import ru.tinkoff.hse.dto.KeycloakTokenResponse;
+import ru.tinkoff.hse.models.KeycloakTokenResponse;
 
 @Service
 public class KeycloakTokenRequestService {

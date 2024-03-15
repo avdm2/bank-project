@@ -1,9 +1,9 @@
-package ru.tinkoff.hse.dto;
+package ru.tinkoff.hse.models;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import ru.tinkoff.hse.dto.components.Currency;
+import ru.tinkoff.hse.models.components.Currency;
 
 import java.math.BigDecimal;
 import java.util.Map;

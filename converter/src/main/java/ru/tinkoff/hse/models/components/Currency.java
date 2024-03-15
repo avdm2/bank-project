@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.dto.components;
+package ru.tinkoff.hse.models.components;
 
 import lombok.Getter;
 
