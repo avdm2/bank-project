@@ -1,17 +1,12 @@
 package ru.tinkoff.hse.controllers;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import ru.tinkoff.hse.models.ConverterError;
-import ru.tinkoff.hse.models.Currency;
+import ru.tinkoff.hse.dto.components.Currency;
 import ru.tinkoff.hse.services.ConverterService;
 
-
-import java.lang.module.FindException;
 import java.math.BigDecimal;
 
 @RestController
@@ -24,12 +19,7 @@ public class ConverterController {
     }
 
     @GetMapping("/convert")
-    public ResponseEntity<?> convert(@RequestParam Currency from, @RequestParam Currency to, @RequestParam BigDecimal amount)
-            throws JsonProcessingException {
-        try {
+    public ResponseEntity<?> convert(@RequestParam Currency from, @RequestParam Currency to, @RequestParam BigDecimal amount) {
             return ResponseEntity.ok().body(converterService.convert(from, to, amount));
-        } catch (IllegalArgumentException | FindException exception) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ConverterError().setMessage(exception.getMessage()));
-        }
     }
 }

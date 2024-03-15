@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.tinkoff.hse.models.RatesResponse;
+import ru.tinkoff.hse.dto.RatesResponse;
 
 @Service
 public class RatesRequestService {
@@ -27,10 +26,9 @@ public class RatesRequestService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         ResponseEntity<RatesResponse> response = new RestTemplate()
-                .exchange(ratesUrl,
-                        HttpMethod.GET,
-                        new HttpEntity<>(null, headers),
-                        RatesResponse.class);
+                .getForEntity(ratesUrl,
+                        RatesResponse.class,
+                        new HttpEntity<>(null, headers));
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new InvalidEndpointRequestException("Rates is unavailable", "http://rates:8080/rates");
         }

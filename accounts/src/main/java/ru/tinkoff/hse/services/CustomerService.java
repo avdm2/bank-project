@@ -1,6 +1,5 @@
 package ru.tinkoff.hse.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
@@ -71,7 +69,6 @@ public class CustomerService {
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
             String token = keycloakTokenRequestService.getToken();
-            log.info("token={}", token);
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
 

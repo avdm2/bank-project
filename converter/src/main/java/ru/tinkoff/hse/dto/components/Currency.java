@@ -1,5 +1,8 @@
-package ru.tinkoff.hse.models;
+package ru.tinkoff.hse.dto.components;
 
+import lombok.Getter;
+
+@Getter
 public enum Currency {
 
     RUB("RUB"),
@@ -12,9 +15,5 @@ public enum Currency {
 
     Currency(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 }

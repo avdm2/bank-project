@@ -1,9 +1,8 @@
 package ru.tinkoff.hse.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
-import ru.tinkoff.hse.models.ConverterResponse;
-import ru.tinkoff.hse.models.Currency;
+import ru.tinkoff.hse.dto.ConverterResponse;
+import ru.tinkoff.hse.dto.components.Currency;
 
 import java.lang.module.FindException;
 import java.math.BigDecimal;
@@ -19,7 +18,7 @@ public class ConverterService {
         this.ratesRequestService = ratesRequestService;
     }
 
-    public ConverterResponse convert(Currency from, Currency to, BigDecimal amount) throws JsonProcessingException {
+    public ConverterResponse convert(Currency from, Currency to, BigDecimal amount) {
         Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
 
         if (amount.intValue() <= 0) {

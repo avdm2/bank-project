@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.models;
+package ru.tinkoff.hse.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

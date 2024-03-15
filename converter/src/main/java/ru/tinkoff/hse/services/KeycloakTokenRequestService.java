@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.FormHttpMessageConverter;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import ru.tinkoff.hse.models.KeycloakTokenResponse;
+import ru.tinkoff.hse.dto.KeycloakTokenResponse;
 
 @Service
 public class KeycloakTokenRequestService {
@@ -44,10 +43,10 @@ public class KeycloakTokenRequestService {
         restTemplate.getMessageConverters().add(new FormHttpMessageConverter());
 
         ResponseEntity<KeycloakTokenResponse> response = restTemplate
-                .exchange(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token",
-                        HttpMethod.POST,
+                .postForEntity(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token",
                         entity,
                         KeycloakTokenResponse.class);
+
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             throw new InvalidEndpointRequestException(
                     "Keycloak is unavailable", "{keycloakUrl}/realms/{keycloakRealm}/protocol/openid-connect/token"
