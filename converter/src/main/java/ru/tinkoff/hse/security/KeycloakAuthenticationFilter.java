@@ -7,14 +7,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 @Component
 public class KeycloakAuthenticationFilter extends OncePerRequestFilter {
@@ -48,11 +49,14 @@ public class KeycloakAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isTokenValid(String token) throws IOException {
-        URL url = new URL(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/certs");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Authorization", "Bearer " + token);
-        return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
+    private boolean isTokenValid(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+
+        return new RestTemplate()
+                .getForEntity(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/certs",
+                        Void.class,
+                        new HttpEntity<>(null, headers)
+                ).getStatusCode().is2xxSuccessful();
     }
 }
