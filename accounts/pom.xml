@@ -44,7 +44,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>ru.tinkoff.hse.Main</mainClass>
+                            <mainClass>ru.tinkoff.hse.ConverterApplication</mainClass>
                         </manifest>
                     </archive>
                     <outputDirectory>${project.build.directory}/</outputDirectory>

@@ -70,14 +70,20 @@ public class CustomerService {
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
 
+            log.info("getTotalBalanceInCurrency; {}",
+                    converterUrl + "/convert?from=" + account.getCurrency() + "&to=" + currency + "&amount=" + account.getAmount());
+
             String token = keycloakTokenRequestService.getToken();
+
+            log.info("token==null: {}", token == null);
+
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
 
             ConverterResponse converterResponse = new RestTemplate()
                     .getForEntity(converterUrl + "/convert?from=" + account.getCurrency() + "&to=" + currency + "&amount=" + account.getAmount(),
                             ConverterResponse.class,
-                            new HttpEntity<>(null, headers))
+                            new HttpEntity<String>(null, headers))
                     .getBody();
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
