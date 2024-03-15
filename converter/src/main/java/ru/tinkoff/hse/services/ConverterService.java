@@ -1,5 +1,6 @@
 package ru.tinkoff.hse.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.models.ConverterResponse;
 import ru.tinkoff.hse.models.components.Currency;
@@ -10,6 +11,7 @@ import java.math.RoundingMode;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class ConverterService {
 
     private final RatesRequestService ratesRequestService;
@@ -19,6 +21,8 @@ public class ConverterService {
     }
 
     public ConverterResponse convert(Currency from, Currency to, BigDecimal amount) {
+        log.info("convert. from:{}; to:{}; amount:{}", from, to, amount);
+
         Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
 
         if (amount.intValue() <= 0) {
