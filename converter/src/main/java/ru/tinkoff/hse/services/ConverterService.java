@@ -21,8 +21,6 @@ public class ConverterService {
     }
 
     public ConverterResponse convert(Currency from, Currency to, BigDecimal amount) {
-        log.info("convert; from={}; to={}; amount={}", from, to, amount);
-
         Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
 
         log.info("rates");
