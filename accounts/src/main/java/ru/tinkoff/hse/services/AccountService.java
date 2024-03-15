@@ -75,7 +75,7 @@ public class AccountService {
             throw new IllegalArgumentException("check required fields");
         }
 
-        if (requestAmount.compareTo(BigDecimal.ZERO) < 0) {
+        if (requestAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("invalid amount to top up");
         }
 
@@ -87,6 +87,7 @@ public class AccountService {
         Account account = optionalAccount.get();
         BigDecimal newAmount = requestAmount.add(account.getAmount());
         account.setAmount(newAmount);
+        accountRepository.save(account);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
