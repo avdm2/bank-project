@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 @Component
+// FIXME
 public class KeycloakAuthenticationFilter extends OncePerRequestFilter {
 
     @Value("${app.keycloak-url}")

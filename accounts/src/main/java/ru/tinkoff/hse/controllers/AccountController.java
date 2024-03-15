@@ -40,7 +40,7 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/transfer")
+    @PostMapping("/transfers")
     public ResponseEntity<?> transfer(@RequestBody TransferRequest request) {
         accountService.transfer(request);
         return ResponseEntity.ok().build();

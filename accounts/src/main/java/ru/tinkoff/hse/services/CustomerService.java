@@ -1,6 +1,5 @@
 package ru.tinkoff.hse.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class CustomerService {
 
     private final CustomerRepository customerRepository;

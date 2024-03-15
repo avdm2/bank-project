@@ -1,7 +1,5 @@
 package ru.tinkoff.hse.services;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,22 +9,18 @@ import org.springframework.web.client.RestTemplate;
 import ru.tinkoff.hse.models.RatesResponse;
 
 @Service
-@Slf4j
 public class RatesRequestService {
 
     private final KeycloakTokenRequestService keycloakTokenRequestService;
 
-    @Value("${app.rates-url}")
-    private String ratesUrl;
+    // FIXME: ratesurl
 
     public RatesRequestService(KeycloakTokenRequestService keycloakTokenRequestService) {
         this.keycloakTokenRequestService = keycloakTokenRequestService;
     }
 
     public RatesResponse getRatesFromRequest() {
-        log.info("getting token");
         String token = keycloakTokenRequestService.getToken();
-        log.info("token==null: {}", token==null);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         ResponseEntity<RatesResponse> response = new RestTemplate()
