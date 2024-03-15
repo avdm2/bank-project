@@ -26,7 +26,7 @@ public class RatesRequestService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         ResponseEntity<RatesResponse> response = new RestTemplate()
-                .getForEntity(ratesUrl + "/rates",
+                .getForEntity("http://rates:8080/rates",
                         RatesResponse.class,
                         new HttpEntity<>(null, headers));
         if (!response.getStatusCode().is2xxSuccessful()) {
