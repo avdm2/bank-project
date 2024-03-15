@@ -85,7 +85,7 @@ public class AccountService {
         }
 
         Account account = optionalAccount.get();
-        BigDecimal newAmount = requestAmount.add(account.getAmount());
+        BigDecimal newAmount = account.getAmount().add(requestAmount);
         account.setAmount(newAmount);
         accountRepository.save(account);
     }

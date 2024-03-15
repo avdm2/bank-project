@@ -21,7 +21,14 @@ public class ConverterService {
     }
 
     public ConverterResponse convert(Currency from, Currency to, BigDecimal amount) {
+        log.info("convert; from={}; to={}; amount={}", from, to, amount);
+
         Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
+
+        log.info("rates");
+        for (var r : rates.entrySet()) {
+            log.info(r.getKey() + ": " + r.getValue());
+        }
 
         if (amount.intValue() <= 0) {
             throw new IllegalArgumentException("Отрицательная сумма");
