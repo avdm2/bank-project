@@ -44,21 +44,21 @@ ingress:
 resources: {}
 
 livenessProbe:
-  httpGet:
-    path: /actuator/health/liveness
-    port: 8080
-  initialDelaySeconds: 60
-  timeoutSeconds: 5
-  periodSeconds: 10
-  failureThreshold: 30
+  httpGet: null
+  grpc:
+    port: 9090
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 2
 readinessProbe:
-  httpGet:
-    path: /actuator/health/readiness
-    port: 8080
-  initialDelaySeconds: 60
-  timeoutSeconds: 5
-  periodSeconds: 10
-  failureThreshold: 30
+  httpGet: null
+  grpc:
+    port: 9090
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 2
 
 autoscaling:
   enabled: false

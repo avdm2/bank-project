@@ -1,13 +1,10 @@
 package ru.tinkoff.hse.services;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
+import ru.tinkoff.hse.controllers.WebSocketController;
 import ru.tinkoff.hse.dto.AccountCreationRequest;
 import ru.tinkoff.hse.dto.AccountCreationResponse;
 import ru.tinkoff.hse.dto.ConverterResponse;
@@ -25,14 +22,18 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final KeycloakTokenRequestService keycloakTokenRequestService;
+    private final GrpcConverterClientService grpcConverterClientService;
+    private final WebSocketController webSocketController;
 
     @Value("${app.converter-url}")
     private String converterUrl;
 
-    public AccountService(AccountRepository accountRepository, KeycloakTokenRequestService keycloakTokenRequestService) {
+    public AccountService(AccountRepository accountRepository,
+                          GrpcConverterClientService grpcConverterClientService,
+                          WebSocketController webSocketController) {
         this.accountRepository = accountRepository;
-        this.keycloakTokenRequestService = keycloakTokenRequestService;
+        this.grpcConverterClientService = grpcConverterClientService;
+        this.webSocketController = webSocketController;
     }
 
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
@@ -52,6 +53,8 @@ public class AccountService {
                 .setCustomerId(request.getCustomerId())
                 .setCurrency(request.getCurrency());
         accountRepository.save(account);
+
+        webSocketController.sendAccountUpdate(account);
 
         return new AccountCreationResponse().setAccountNumber(account.getAccountNumber());
     }
@@ -88,6 +91,8 @@ public class AccountService {
         BigDecimal newAmount = account.getAmount().add(requestAmount);
         account.setAmount(newAmount);
         accountRepository.save(account);
+
+        webSocketController.sendAccountUpdate(account);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -116,16 +121,8 @@ public class AccountService {
             receiverAccount.setAmount(receiverAccount.getAmount().add(amountInSenderCurrency));
             senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
         } else {
-            String token = keycloakTokenRequestService.getToken();
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + token);
 
-            ConverterResponse converterResponse = new RestTemplate()
-                    .exchange(converterUrl + "/convert?from=" + senderAccount.getCurrency() + "&to=" + receiverAccount.getCurrency() + "&amount=" + amountInSenderCurrency,
-                            HttpMethod.GET,
-                            new HttpEntity<>(null, headers),
-                            ConverterResponse.class)
-                    .getBody();
+            ConverterResponse converterResponse = grpcConverterClientService.convert(senderAccount.getCurrency(), receiverAccount.getCurrency(), amountInSenderCurrency);
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
             }
@@ -135,5 +132,8 @@ public class AccountService {
 
         accountRepository.save(receiverAccount);
         accountRepository.save(senderAccount);
+
+        webSocketController.sendAccountUpdate(senderAccount);
+        webSocketController.sendAccountUpdate(receiverAccount);
     }
 }

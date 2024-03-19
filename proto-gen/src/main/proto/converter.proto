@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package converter;
+
+message DecimalValue {
+  uint32 scale = 1;
+  uint32 precision = 2;
+  bytes value = 3;
+}
+
+message ConvertRequest {
+  string from_currency = 1;
+  string to_currency = 2;
+  DecimalValue amount = 3;
+}
+
+message ConvertResponse {
+  string currency = 1;
+  DecimalValue converted_amount = 2;
+}
+
+service CurrencyConverter {
+  rpc Convert (ConvertRequest) returns (ConvertResponse);
+}

@@ -1,11 +1,7 @@
 package ru.tinkoff.hse.services;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.dto.GetTotalBalanceResponse;
 import ru.tinkoff.hse.dto.CustomerCreationRequest;
@@ -24,17 +20,17 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
-    private final KeycloakTokenRequestService keycloakTokenRequestService;
+    private final GrpcConverterClientService grpcConverterClientService;
 
     @Value("${app.converter-url}")
     private String converterUrl;
 
     public CustomerService(CustomerRepository customerRepository,
                            AccountRepository accountRepository,
-                           KeycloakTokenRequestService keycloakTokenRequestService) {
+                           GrpcConverterClientService grpcConverterClientService) {
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
-        this.keycloakTokenRequestService = keycloakTokenRequestService;
+        this.grpcConverterClientService = grpcConverterClientService;
     }
 
     public CustomerCreationResponse createCustomer(CustomerCreationRequest request) {
@@ -68,17 +64,8 @@ public class CustomerService {
 
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
-            String token = keycloakTokenRequestService.getToken();
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + token);
-
-            ConverterResponse converterResponse = new RestTemplate()
-                    .exchange(converterUrl + "/convert?from=" + account.getCurrency() + "&to=" + currency + "&amount=" + account.getAmount(),
-                            HttpMethod.GET,
-                            new HttpEntity<String>(null, headers),
-                            ConverterResponse.class)
-                    .getBody();
+            ConverterResponse converterResponse = grpcConverterClientService.convert(account.getCurrency(), currency, account.getAmount());
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
             }
