@@ -1,6 +1,5 @@
 package ru.tinkoff.hse.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.ConverterResponse;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
@@ -50,7 +48,6 @@ public class CustomerService {
     }
 
     public GetTotalBalanceResponse getTotalBalanceInCurrency(Integer customerId, String currency) {
-        log.info("in CustomerService::getTotalBalanceInCurrency");
         if (customerId == null || currency == null) {
             throw new IllegalArgumentException("check required fields");
         }
@@ -67,9 +64,7 @@ public class CustomerService {
 
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
-            log.info("getting response");
             ConverterResponse converterResponse = grpcConverterClientService.convert(account.getCurrency(), currency, account.getAmount());
-            log.info("got response");
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
             }

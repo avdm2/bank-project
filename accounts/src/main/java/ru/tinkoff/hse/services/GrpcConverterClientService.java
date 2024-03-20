@@ -2,6 +2,7 @@ package ru.tinkoff.hse.services;
 
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.lib.Converter;

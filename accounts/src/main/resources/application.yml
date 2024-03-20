@@ -9,11 +9,9 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         order_by.default_null_ordering: last
         format_sql: true
     open-in-view: false
-    show-sql: true
     generate-ddl: true
 
 management:
@@ -34,7 +32,6 @@ app:
 grpc:
   client:
     grpcConverterClientService:
-      address: localhost:9090
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiation-type: plaintext
