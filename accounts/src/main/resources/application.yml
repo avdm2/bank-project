@@ -22,9 +22,14 @@ management:
       probes:
         enabled: true
 
+
 app:
   converter-url: ${CONVERTER_URL:http://converter:8080}
   keycloak-url: ${KEYCLOAK_URL}
   keycloak-realm: ${KEYCLOAK_REALM}
   client-id: ${CLIENT_ID}
   client-secret: ${CLIENT_SECRET}
+grpc:
+  client:
+    converter:
+      address: ${CONVERTER_GRPC_ADDRESS:static://localhost:9090}

@@ -1,16 +1,16 @@
-package ru.tinkoff.hse.controllers;
+package ru.tinkoff.hse.services;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.AccountMessage;
 import ru.tinkoff.hse.entities.Account;
 
-@Controller
-public class WebSocketController {
+@Service
+public class WebSocketService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public WebSocketController(SimpMessagingTemplate simpMessagingTemplate) {
+    public WebSocketService(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 

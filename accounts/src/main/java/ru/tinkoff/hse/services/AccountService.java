@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tinkoff.hse.controllers.WebSocketController;
 import ru.tinkoff.hse.dto.AccountCreationRequest;
 import ru.tinkoff.hse.dto.AccountCreationResponse;
 import ru.tinkoff.hse.dto.ConverterResponse;
@@ -23,17 +22,17 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final GrpcConverterClientService grpcConverterClientService;
-    private final WebSocketController webSocketController;
+    private final WebSocketService webSocketService;
 
     @Value("${app.converter-url}")
     private String converterUrl;
 
     public AccountService(AccountRepository accountRepository,
                           GrpcConverterClientService grpcConverterClientService,
-                          WebSocketController webSocketController) {
+                          WebSocketService webSocketService) {
         this.accountRepository = accountRepository;
         this.grpcConverterClientService = grpcConverterClientService;
-        this.webSocketController = webSocketController;
+        this.webSocketService = webSocketService;
     }
 
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
@@ -54,7 +53,7 @@ public class AccountService {
                 .setCurrency(request.getCurrency());
         accountRepository.save(account);
 
-        webSocketController.sendAccountUpdate(account);
+        webSocketService.sendAccountUpdate(account);
 
         return new AccountCreationResponse().setAccountNumber(account.getAccountNumber());
     }
@@ -92,7 +91,7 @@ public class AccountService {
         account.setAmount(newAmount);
         accountRepository.save(account);
 
-        webSocketController.sendAccountUpdate(account);
+        webSocketService.sendAccountUpdate(account);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -133,7 +132,7 @@ public class AccountService {
         accountRepository.save(receiverAccount);
         accountRepository.save(senderAccount);
 
-        webSocketController.sendAccountUpdate(senderAccount);
-        webSocketController.sendAccountUpdate(receiverAccount);
+        webSocketService.sendAccountUpdate(senderAccount);
+        webSocketService.sendAccountUpdate(receiverAccount);
     }
 }
