@@ -1,12 +1,18 @@
 management:
   endpoint:
     health:
+      show-details: always
       probes:
         enabled: true
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
 
 app:
   rates-url: ${RATES_URL:http://rates:8080}
-  keycloak-url: ${KEYCLOAK_URL}
-  keycloak-realm: ${KEYCLOAK_REALM}
-  client-id: ${CLIENT_ID}
-  client-secret: ${CLIENT_SECRET}
+  keycloak-url: ${KEYCLOAK_URL:123}
+  keycloak-realm: ${KEYCLOAK_REALM:123}
+  client-id: ${CLIENT_ID:123}
+  client-secret: ${CLIENT_SECRET:123}

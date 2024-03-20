@@ -4,7 +4,7 @@ import com.google.protobuf.ByteString;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.lib.Converter;
-import ru.tinkoff.hse.lib.CurrencyConverterGrpc;
+import ru.tinkoff.hse.lib.CurrencyConverterGrpc.CurrencyConverterBlockingStub;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -13,9 +13,9 @@ import java.math.MathContext;
 @Service
 public class GrpcConverterClientService {
 
-    private final CurrencyConverterGrpc.CurrencyConverterBlockingStub converterStub;
+    private final CurrencyConverterBlockingStub converterStub;
 
-    public GrpcConverterClientService(CurrencyConverterGrpc.CurrencyConverterBlockingStub converterStub) {
+    public GrpcConverterClientService(CurrencyConverterBlockingStub converterStub) {
         this.converterStub = converterStub;
     }
 
