@@ -1,8 +1,6 @@
 package ru.tinkoff.hse.services;
 
 import com.google.protobuf.ByteString;
-import io.grpc.Channel;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.lib.Converter;
@@ -15,18 +13,20 @@ import java.math.MathContext;
 @Service
 public class GrpcConverterClientService {
 
-    @GrpcClient("converter")
-    private Channel serverChannel;
+    private final CurrencyConverterGrpc.CurrencyConverterBlockingStub converterStub;
+
+    public GrpcConverterClientService(CurrencyConverterGrpc.CurrencyConverterBlockingStub converterStub) {
+        this.converterStub = converterStub;
+    }
 
     public ConverterResponse convert(String from, String to, BigDecimal amount) {
-        CurrencyConverterGrpc.CurrencyConverterBlockingStub stub = CurrencyConverterGrpc.newBlockingStub(serverChannel);
         Converter.ConvertRequest request = Converter.ConvertRequest.newBuilder()
                 .setFromCurrency(from)
                 .setToCurrency(to)
                 .setAmount(serializeToDecimalValue(amount))
                 .build();
 
-        Converter.ConvertResponse response = stub.convert(request);
+        Converter.ConvertResponse response = converterStub.convert(request);
         BigDecimal convertedAmount = deserializeFromDecimalValue(response.getConvertedAmount());
         return new ConverterResponse().setAmount(convertedAmount).setCurrency(to);
     }
