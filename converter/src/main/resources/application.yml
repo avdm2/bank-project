@@ -16,3 +16,11 @@ app:
   keycloak-realm: ${KEYCLOAK_REALM:123}
   client-id: ${CLIENT_ID:123}
   client-secret: ${CLIENT_SECRET:123}
+
+grpc:
+  client:
+    grpcConverterClientService:
+      address: localhost:9090
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiation-type: plaintext

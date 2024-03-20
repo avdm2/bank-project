@@ -28,10 +28,3 @@ management:
 
 app:
   converter-url: ${CONVERTER_URL:http://converter:8080}
-
-grpc:
-  client:
-    grpcConverterClientService:
-      enableKeepAlive: true
-      keepAliveWithoutCalls: true
-      negotiation-type: plaintext
