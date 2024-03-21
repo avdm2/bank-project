@@ -2,7 +2,6 @@ package ru.tinkoff.hse.services;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.tinkoff.hse.lib.Converter;
 import ru.tinkoff.hse.lib.CurrencyConverterGrpc;
@@ -15,7 +14,6 @@ import java.math.RoundingMode;
 import java.util.Map;
 
 @GrpcService
-@Slf4j
 public class GrpcConverterServerService extends CurrencyConverterGrpc.CurrencyConverterImplBase {
 
     private final RatesRequestService ratesRequestService;
@@ -26,7 +24,6 @@ public class GrpcConverterServerService extends CurrencyConverterGrpc.CurrencyCo
 
     @Override
     public void convert(Converter.ConvertRequest request, StreamObserver<Converter.ConvertResponse> responseObserver) {
-        log.info("in GrpcConverterServerService::convert");
         Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
         BigDecimal amount = deserializeFromDecimalValue(request.getAmount());
         String from = request.getFromCurrency();

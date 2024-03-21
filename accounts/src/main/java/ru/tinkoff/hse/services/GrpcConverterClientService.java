@@ -1,8 +1,6 @@
 package ru.tinkoff.hse.services;
 
 import com.google.protobuf.ByteString;
-import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.lib.Converter;
@@ -14,7 +12,6 @@ import java.math.BigInteger;
 import java.math.MathContext;
 
 @Service
-@Slf4j
 public class GrpcConverterClientService {
 
     private final CurrencyConverterBlockingStub converterStub;
@@ -24,7 +21,6 @@ public class GrpcConverterClientService {
     }
 
     public ConverterResponse convert(String from, String to, BigDecimal amount) {
-        log.info("in GrpcConverterClientService::convert. from: {}, to: {}, amount: {}", from, to, amount);
         Converter.ConvertRequest request = Converter.ConvertRequest.newBuilder()
                 .setFromCurrency(from)
                 .setToCurrency(to)
