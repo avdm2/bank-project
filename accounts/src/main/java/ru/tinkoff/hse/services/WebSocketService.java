@@ -19,6 +19,6 @@ public class WebSocketService {
                 .setAccountNumber(account.getAccountNumber())
                 .setCurrency(account.getCurrency())
                 .setBalance(account.getAmount());
-        simpMessagingTemplate.convertAndSend("/topic/account", account);
+        simpMessagingTemplate.convertAndSend("/topic/accounts", message);
     }
 }
