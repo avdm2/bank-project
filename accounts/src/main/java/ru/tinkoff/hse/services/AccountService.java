@@ -1,6 +1,7 @@
 package ru.tinkoff.hse.services;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,17 +24,17 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final GrpcConverterClientService grpcConverterClientService;
-    private final WebSocketService webSocketService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Value("${app.converter-url}")
     private String converterUrl;
 
     public AccountService(AccountRepository accountRepository,
                           GrpcConverterClientService grpcConverterClientService,
-                          WebSocketService webSocketService) {
+                          SimpMessagingTemplate simpMessagingTemplate) {
         this.accountRepository = accountRepository;
         this.grpcConverterClientService = grpcConverterClientService;
-        this.webSocketService = webSocketService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
@@ -58,7 +59,7 @@ public class AccountService {
                 .setAccountNumber(account.getAccountNumber())
                 .setCurrency(account.getCurrency())
                 .setBalance(account.getAmount());
-        webSocketService.notifyAccountChange(accountMessage);
+        simpMessagingTemplate.convertAndSend("/topic/accounts", accountMessage);
 
         return new AccountCreationResponse().setAccountNumber(account.getAccountNumber());
     }
@@ -100,7 +101,7 @@ public class AccountService {
                 .setAccountNumber(account.getAccountNumber())
                 .setCurrency(account.getCurrency())
                 .setBalance(account.getAmount());
-        webSocketService.notifyAccountChange(accountMessage);
+        simpMessagingTemplate.convertAndSend("/topic/accounts", accountMessage);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -145,12 +146,12 @@ public class AccountService {
                 .setAccountNumber(senderAccount.getAccountNumber())
                 .setCurrency(senderAccount.getCurrency())
                 .setBalance(senderAccount.getAmount());
-        webSocketService.notifyAccountChange(senderAccountMessage);
+        simpMessagingTemplate.convertAndSend("/topic/accounts", senderAccountMessage);
 
         AccountMessage receiverAccountMessage = new AccountMessage()
                 .setAccountNumber(receiverAccount.getAccountNumber())
                 .setCurrency(receiverAccount.getCurrency())
                 .setBalance(receiverAccount.getAmount());
-        webSocketService.notifyAccountChange(receiverAccountMessage);
+        simpMessagingTemplate.convertAndSend("/topic/accounts", receiverAccountMessage);
     }
 }
