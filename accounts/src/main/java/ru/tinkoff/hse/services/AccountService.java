@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tinkoff.hse.dto.AccountCreationRequest;
 import ru.tinkoff.hse.dto.AccountCreationResponse;
+import ru.tinkoff.hse.dto.AccountMessage;
 import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.dto.GetAccountResponse;
 import ru.tinkoff.hse.dto.TopUpRequest;
@@ -53,7 +54,11 @@ public class AccountService {
                 .setCurrency(request.getCurrency());
         accountRepository.save(account);
 
-        webSocketService.sendAccountUpdate(account);
+        AccountMessage accountMessage = new AccountMessage()
+                .setAccountNumber(account.getAccountNumber())
+                .setCurrency(account.getCurrency())
+                .setBalance(account.getAmount());
+        webSocketService.notifyAccountChange(accountMessage);
 
         return new AccountCreationResponse().setAccountNumber(account.getAccountNumber());
     }
@@ -91,7 +96,11 @@ public class AccountService {
         account.setAmount(newAmount);
         accountRepository.save(account);
 
-        webSocketService.sendAccountUpdate(account);
+        AccountMessage accountMessage = new AccountMessage()
+                .setAccountNumber(account.getAccountNumber())
+                .setCurrency(account.getCurrency())
+                .setBalance(account.getAmount());
+        webSocketService.notifyAccountChange(accountMessage);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -132,7 +141,16 @@ public class AccountService {
         accountRepository.save(receiverAccount);
         accountRepository.save(senderAccount);
 
-        webSocketService.sendAccountUpdate(senderAccount);
-        webSocketService.sendAccountUpdate(receiverAccount);
+        AccountMessage senderAccountMessage = new AccountMessage()
+                .setAccountNumber(senderAccount.getAccountNumber())
+                .setCurrency(senderAccount.getCurrency())
+                .setBalance(senderAccount.getAmount());
+        webSocketService.notifyAccountChange(senderAccountMessage);
+
+        AccountMessage receiverAccountMessage = new AccountMessage()
+                .setAccountNumber(receiverAccount.getAccountNumber())
+                .setCurrency(receiverAccount.getCurrency())
+                .setBalance(receiverAccount.getAmount());
+        webSocketService.notifyAccountChange(receiverAccountMessage);
     }
 }

@@ -1,24 +1,21 @@
 package ru.tinkoff.hse.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.AccountMessage;
-import ru.tinkoff.hse.entities.Account;
 
 @Service
 public class WebSocketService {
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate template;
 
-    public WebSocketService(SimpMessagingTemplate simpMessagingTemplate) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
+    @Autowired
+    public WebSocketService(SimpMessagingTemplate template) {
+        this.template = template;
     }
 
-    public void sendAccountUpdate(Account account) {
-        AccountMessage message = new AccountMessage()
-                .setAccountNumber(account.getAccountNumber())
-                .setCurrency(account.getCurrency())
-                .setBalance(account.getAmount());
-        simpMessagingTemplate.convertAndSend("/topic/accounts", message);
+    public void notifyAccountChange(AccountMessage accountMessage) {
+        template.convertAndSend("/topic/accounts", accountMessage);
     }
 }
