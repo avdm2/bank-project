@@ -44,3 +44,6 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiation-type: plaintext
+
+server:
+  port: 8081
