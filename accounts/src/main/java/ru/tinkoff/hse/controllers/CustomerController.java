@@ -1,5 +1,6 @@
 package ru.tinkoff.hse.controllers;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,10 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.tinkoff.hse.dto.CustomerCreationRequest;
 import ru.tinkoff.hse.dto.CustomerCreationResponse;
 import ru.tinkoff.hse.dto.GetTotalBalanceResponse;
+import ru.tinkoff.hse.exceptions.RateLimitExceededException;
 import ru.tinkoff.hse.services.CustomerService;
 
 @RestController
-@RequestMapping("/customers")
+@RequestMapping
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -23,14 +25,19 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    @PostMapping()
+    @PostMapping("/customers")
     public ResponseEntity<CustomerCreationResponse> create(@RequestBody CustomerCreationRequest request) {
         return ResponseEntity.ok().body(customerService.createCustomer(request));
     }
 
-    @GetMapping("/{customerId}/balance")
+    @GetMapping("/customers/{customerId}/balance")
+    @RateLimiter(name = "customerBalanceRateLimiter", fallbackMethod = "rateLimitFallback")
     public ResponseEntity<GetTotalBalanceResponse> getTotalBalance(@PathVariable("customerId") Integer customerId,
                                                                    @RequestParam("currency") String currency) {
         return ResponseEntity.ok().body(customerService.getTotalBalanceInCurrency(customerId, currency));
+    }
+
+    public ResponseEntity<GetTotalBalanceResponse> rateLimitFallback(Long customerId, Throwable t) {
+        throw new RateLimitExceededException("Rate limit exceeded for customer " + customerId);
     }
 }

@@ -21,7 +21,6 @@ logging:
         web:
           socket: TRACE
 
-
 management:
   endpoint:
     health:
@@ -33,6 +32,10 @@ management:
       enabled: true
     livenessstate:
       enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: circuitbreakers
 
 app:
   converter-url: ${CONVERTER_URL:http://converter:8080}
@@ -44,3 +47,21 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiation-type: plaintext
+
+resilience4j.circuitbreaker:
+  instances:
+    grpcConverterCircuitBreaker:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 10
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 10s
+      failureRateThreshold: 50
+
+resilience4j.ratelimiter:
+  instances:
+    customerBalanceRateLimiter:
+      limitForPeriod: 5
+      limitRefreshPeriod: 1m
+      timeoutDuration: 0ms

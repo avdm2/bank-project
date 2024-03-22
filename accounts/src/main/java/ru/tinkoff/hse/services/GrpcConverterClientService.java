@@ -1,6 +1,7 @@
 package ru.tinkoff.hse.services;
 
 import com.google.protobuf.ByteString;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.lib.Converter;
@@ -20,6 +21,7 @@ public class GrpcConverterClientService {
         this.converterStub = converterStub;
     }
 
+    @CircuitBreaker(name = "grpcConverterCircuitBreaker", fallbackMethod = "fallback")
     public ConverterResponse convert(String from, String to, BigDecimal amount) {
         Converter.ConvertRequest request = Converter.ConvertRequest.newBuilder()
                 .setFromCurrency(from)
@@ -46,5 +48,9 @@ public class GrpcConverterClientService {
                 .setPrecision(value.precision())
                 .setValue(ByteString.copyFrom(value.unscaledValue().toByteArray()))
                 .build();
+    }
+
+    public ConverterResponse fallback(Throwable t) {
+        return new ConverterResponse();
     }
 }
