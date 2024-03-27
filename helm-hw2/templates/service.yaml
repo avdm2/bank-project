@@ -9,6 +9,6 @@ spec:
   ports:
     - port: {{ .Values.service.port }}
       protocol: TCP
-      name: http
+      targetPort: {{ .Values.service.port }}
   selector:
     {{- include "helm-hw2.selectorLabels" . | nindent 4 }}
