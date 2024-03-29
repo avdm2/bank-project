@@ -1,15 +1,13 @@
 package ru.tinkoff.hse.services;
 
-import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import ru.tinkoff.hse.lib.Converter;
+import ru.tinkoff.hse.lib.ConvertRequest;
+import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.lib.CurrencyConverterGrpc;
 
 import java.lang.module.FindException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Map;
 
@@ -23,9 +21,9 @@ public class GrpcConverterServerService extends CurrencyConverterGrpc.CurrencyCo
     }
 
     @Override
-    public void convert(Converter.ConvertRequest request, StreamObserver<Converter.ConvertResponse> responseObserver) {
+    public void convert(ConvertRequest request, StreamObserver<ConvertResponse> responseObserver) {
         Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
-        BigDecimal amount = deserializeFromDecimalValue(request.getAmount());
+        BigDecimal amount = new BigDecimal(request.getAmount());
         String from = request.getFromCurrency();
         String to = request.getToCurrency();
 
@@ -41,30 +39,14 @@ public class GrpcConverterServerService extends CurrencyConverterGrpc.CurrencyCo
         }
 
         BigDecimal resultAmount = amount.multiply(rates.get(from)).divide(rates.get(to), 2, RoundingMode.HALF_EVEN);
-        Converter.DecimalValue convertedAmount = serializeToDecimalValue(resultAmount);
+        String convertedAmount = resultAmount.toPlainString();
 
-        Converter.ConvertResponse response = Converter.ConvertResponse.newBuilder()
+        ConvertResponse response = ConvertResponse.newBuilder()
                 .setCurrency(request.getToCurrency())
                 .setConvertedAmount(convertedAmount)
                 .build();
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
-    }
-
-    private BigDecimal deserializeFromDecimalValue(Converter.DecimalValue value) {
-        return new BigDecimal(
-                new BigInteger(value.getValue().toByteArray()),
-                value.getScale(),
-                new MathContext(value.getPrecision())
-        );
-    }
-
-    private Converter.DecimalValue serializeToDecimalValue(BigDecimal value) {
-        return Converter.DecimalValue.newBuilder()
-                .setScale(value.scale())
-                .setPrecision(value.precision())
-                .setValue(ByteString.copyFrom(value.unscaledValue().toByteArray()))
-                .build();
     }
 }
