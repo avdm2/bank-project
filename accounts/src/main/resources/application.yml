@@ -37,9 +37,6 @@ management:
       exposure:
         include: circuitbreakers
 
-app:
-  converter-url: ${CONVERTER_URL:http://converter:9090}
-
 grpc:
   client:
     grpcConverterClientService:
