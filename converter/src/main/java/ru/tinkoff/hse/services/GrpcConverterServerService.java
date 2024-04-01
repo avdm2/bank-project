@@ -39,11 +39,10 @@ public class GrpcConverterServerService extends CurrencyConverterGrpc.CurrencyCo
         }
 
         BigDecimal resultAmount = amount.multiply(rates.get(from)).divide(rates.get(to), 2, RoundingMode.HALF_EVEN);
-        String convertedAmount = resultAmount.toPlainString();
 
         ConvertResponse response = ConvertResponse.newBuilder()
                 .setCurrency(request.getToCurrency())
-                .setConvertedAmount(convertedAmount)
+                .setConvertedAmount(resultAmount.toPlainString())
                 .build();
 
         responseObserver.onNext(response);

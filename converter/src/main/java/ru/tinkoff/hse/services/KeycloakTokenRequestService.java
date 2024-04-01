@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.FormHttpMessageConverter;
@@ -43,7 +44,8 @@ public class KeycloakTokenRequestService {
         restTemplate.getMessageConverters().add(new FormHttpMessageConverter());
 
         ResponseEntity<KeycloakTokenResponse> response = restTemplate
-                .postForEntity(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token",
+                .exchange(keycloakUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token",
+                        HttpMethod.POST,
                         entity,
                         KeycloakTokenResponse.class);
 

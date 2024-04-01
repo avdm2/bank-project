@@ -1,6 +1,5 @@
 package ru.tinkoff.hse.services;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -8,14 +7,15 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.tinkoff.hse.dto.AccountCreationRequest;
 import ru.tinkoff.hse.dto.AccountCreationResponse;
 import ru.tinkoff.hse.dto.AccountMessage;
-import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.dto.GetAccountResponse;
 import ru.tinkoff.hse.dto.TopUpRequest;
 import ru.tinkoff.hse.dto.TransferRequest;
 import ru.tinkoff.hse.entities.Account;
+import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.repositories.AccountRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,9 +25,6 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final GrpcConverterClientService grpcConverterClientService;
     private final SimpMessagingTemplate simpMessagingTemplate;
-
-    @Value("${app.converter-url}")
-    private String converterUrl;
 
     public AccountService(AccountRepository accountRepository,
                           GrpcConverterClientService grpcConverterClientService,
@@ -53,13 +50,9 @@ public class AccountService {
         Account account = new Account()
                 .setCustomerId(request.getCustomerId())
                 .setCurrency(request.getCurrency());
-        accountRepository.save(account);
 
-        AccountMessage accountMessage = new AccountMessage()
-                .setAccountNumber(account.getAccountNumber())
-                .setCurrency(account.getCurrency())
-                .setBalance(account.getAmount());
-        simpMessagingTemplate.convertAndSend("/topic/accounts", accountMessage);
+        accountRepository.save(account);
+        sendMessage(account);
 
         return new AccountCreationResponse().setAccountNumber(account.getAccountNumber());
     }
@@ -95,13 +88,9 @@ public class AccountService {
         Account account = optionalAccount.get();
         BigDecimal newAmount = account.getAmount().add(requestAmount);
         account.setAmount(newAmount);
-        accountRepository.save(account);
 
-        AccountMessage accountMessage = new AccountMessage()
-                .setAccountNumber(account.getAccountNumber())
-                .setCurrency(account.getCurrency())
-                .setBalance(account.getAmount());
-        simpMessagingTemplate.convertAndSend("/topic/accounts", accountMessage);
+        accountRepository.save(account);
+        sendMessage(account);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -130,28 +119,28 @@ public class AccountService {
             receiverAccount.setAmount(receiverAccount.getAmount().add(amountInSenderCurrency));
             senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
         } else {
+            ConvertResponse converterResponse = grpcConverterClientService
+                    .convert(senderAccount.getCurrency(), receiverAccount.getCurrency(), amountInSenderCurrency);
 
-            ConverterResponse converterResponse = grpcConverterClientService.convert(senderAccount.getCurrency(), receiverAccount.getCurrency(), amountInSenderCurrency);
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
             }
-            receiverAccount.setAmount(receiverAccount.getAmount().add(converterResponse.getAmount()));
+            receiverAccount.setAmount(receiverAccount.getAmount().add(new BigDecimal(converterResponse.getConvertedAmount())));
             senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
         }
 
         accountRepository.save(receiverAccount);
         accountRepository.save(senderAccount);
 
-        AccountMessage senderAccountMessage = new AccountMessage()
-                .setAccountNumber(senderAccount.getAccountNumber())
-                .setCurrency(senderAccount.getCurrency())
-                .setBalance(senderAccount.getAmount());
-        simpMessagingTemplate.convertAndSend("/topic/accounts", senderAccountMessage);
+        sendMessage(senderAccount);
+        sendMessage(receiverAccount);
+    }
 
-        AccountMessage receiverAccountMessage = new AccountMessage()
-                .setAccountNumber(receiverAccount.getAccountNumber())
-                .setCurrency(receiverAccount.getCurrency())
-                .setBalance(receiverAccount.getAmount());
-        simpMessagingTemplate.convertAndSend("/topic/accounts", receiverAccountMessage);
+    private void sendMessage(Account account) {
+        AccountMessage accountMessage = new AccountMessage()
+                .setAccountNumber(account.getAccountNumber())
+                .setCurrency(account.getCurrency())
+                .setBalance(account.getAmount().setScale(2, RoundingMode.HALF_EVEN));
+        simpMessagingTemplate.convertAndSend("/topic/accounts", accountMessage);
     }
 }

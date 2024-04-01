@@ -1,13 +1,12 @@
 package ru.tinkoff.hse.services;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.tinkoff.hse.dto.ConverterResponse;
 import ru.tinkoff.hse.dto.GetTotalBalanceResponse;
 import ru.tinkoff.hse.dto.CustomerCreationRequest;
 import ru.tinkoff.hse.dto.CustomerCreationResponse;
 import ru.tinkoff.hse.entities.Account;
 import ru.tinkoff.hse.entities.Customer;
+import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.repositories.AccountRepository;
 import ru.tinkoff.hse.repositories.CustomerRepository;
 
@@ -21,9 +20,6 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
     private final GrpcConverterClientService grpcConverterClientService;
-
-    @Value("${app.converter-url}")
-    private String converterUrl;
 
     public CustomerService(CustomerRepository customerRepository,
                            AccountRepository accountRepository,
@@ -64,11 +60,13 @@ public class CustomerService {
 
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
-            ConverterResponse converterResponse = grpcConverterClientService.convert(account.getCurrency(), currency, account.getAmount());
+            ConvertResponse converterResponse = grpcConverterClientService
+                    .convert(account.getCurrency(),currency, account.getAmount());
+
             if (converterResponse == null) {
                 throw new NullPointerException("error with gotten response from converter");
             }
-            balance = balance.add(converterResponse.getAmount());
+            balance = balance.add(new BigDecimal(converterResponse.getConvertedAmount()));
         }
 
         return new GetTotalBalanceResponse().setBalance(balance).setCurrency(currency);

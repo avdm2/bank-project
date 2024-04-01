@@ -43,7 +43,7 @@ app:
 grpc:
   client:
     grpcConverterClientService:
-      address: converter:9090
+      address: ${CONVERTER_URL:http://converter:9090}
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiation-type: plaintext

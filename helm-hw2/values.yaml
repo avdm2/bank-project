@@ -5,74 +5,27 @@ image:
   pullPolicy: IfNotPresent
   tag: latest
 
-extraEnv:
-  - name: ENV_NAME
-    value: some-value
+extraEnv: {}
 
-imagePullSecrets: []
-nameOverride: ""
 fullnameOverride: ""
-
-serviceAccount:
-  create: true
-  automount: true
-  annotations: {}
-  name: ""
-
-podAnnotations: {}
-podLabels: {}
-
-podSecurityContext: {}
-
-securityContext: {}
 
 service:
   type: ClusterIP
   port: 8080
 
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-
-resources: {}
-
 livenessProbe:
-  httpGet: null
-  grpc:
-    port: 9090
-  initialDelaySeconds: 10
-  periodSeconds: 5
-  successThreshold: 1
-  timeoutSeconds: 2
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 60
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 30
 readinessProbe:
-  httpGet: null
-  grpc:
-    port: 9090
-  initialDelaySeconds: 10
-  periodSeconds: 5
-  successThreshold: 1
-  timeoutSeconds: 2
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 90
-  targetMemoryUtilizationPercentage: 90
-
-volumes: []
-
-volumeMounts: []
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  initialDelaySeconds: 60
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 30
