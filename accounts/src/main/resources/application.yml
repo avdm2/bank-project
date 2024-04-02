@@ -56,5 +56,5 @@ resilience4j.ratelimiter:
   instances:
     customerRateLimiter:
       limitForPeriod: 5
-      limitRefreshPeriod: 1s
+      limitRefreshPeriod: 1m
       timeoutDuration: 0ms
