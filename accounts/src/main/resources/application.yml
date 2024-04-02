@@ -53,9 +53,9 @@ resilience4j:
         failure-rate-threshold: 50
   ratelimiter:
     instances:
-      customerRateLimiter:
-        limit-for-period: 5
+      customerBalanceRateLimiter:
+        limitForPeriod: 5
         limit-refresh-period:
           seconds: 60
         timeout-duration:
-          seconds: 0
+          nanos: 0

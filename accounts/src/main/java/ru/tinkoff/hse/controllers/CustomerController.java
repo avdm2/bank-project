@@ -39,7 +39,7 @@ public class CustomerController {
     @GetMapping("/{customerId}/balance")
     public ResponseEntity<GetTotalBalanceResponse> getTotalBalance(@PathVariable("customerId") Integer customerId,
                                                                    @RequestParam("currency") String currency) {
-        RateLimiter rateLimiter = rateLimiterRegistry.rateLimiter("customerRateLimiter");
+        RateLimiter rateLimiter = rateLimiterRegistry.rateLimiter("customerBalanceRateLimiter");
         Supplier<GetTotalBalanceResponse> supplier = RateLimiter.decorateSupplier(rateLimiter,
                 () -> customerService.getTotalBalanceInCurrency(customerId, currency));
 
