@@ -45,8 +45,6 @@ resilience4j:
   circuitbreaker:
     instances:
       grpcConverterCircuitBreaker:
-        register-health-indicator: true
-        sliding-window-size: 10
         minimum-number-of-calls: 10
         permitted-number-of-calls-in-half-open-state: 3
         automatic-transition-from-open-to-half-open-enabled: true
@@ -55,7 +53,7 @@ resilience4j:
         failure-rate-threshold: 50
   ratelimiter:
     instances:
-      grpcConverterCircuitBreaker:
+      customerBalanceRateLimiter:
         limit-for-period: 5
         limit-refresh-period:
           seconds: 60

@@ -2,6 +2,7 @@ package ru.tinkoff.hse.services;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.web.client.HttpClientErrorException;
 import ru.tinkoff.hse.lib.ConvertRequest;
 import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.lib.CurrencyConverterGrpc;
@@ -22,7 +23,15 @@ public class GrpcConverterServerService extends CurrencyConverterGrpc.CurrencyCo
 
     @Override
     public void convert(ConvertRequest request, StreamObserver<ConvertResponse> responseObserver) {
-        Map<String, BigDecimal> rates = ratesRequestService.getRatesFromRequest().getRates();
+        Map<String, BigDecimal> rates;
+        try {
+            rates = ratesRequestService.getRatesFromRequest().getRates();
+        } catch (HttpClientErrorException e) {
+            responseObserver.onNext(null);
+            responseObserver.onCompleted();
+            return;
+        }
+
         BigDecimal amount = new BigDecimal(request.getAmount());
         String from = request.getFromCurrency();
         String to = request.getToCurrency();

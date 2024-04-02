@@ -2,10 +2,10 @@ package ru.tinkoff.hse.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.endpoint.InvalidEndpointRequestException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
@@ -31,7 +31,7 @@ public class RatesRequestService {
     }
 
     @Retryable(
-            value = { InvalidEndpointRequestException.class },
+            value = { HttpClientErrorException.class },
             maxAttempts = 4,
             backoff = @Backoff(delayExpression = "50", multiplier = 2)
     )
@@ -45,7 +45,7 @@ public class RatesRequestService {
                         new HttpEntity<>(null, headers),
                         RatesResponse.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new InvalidEndpointRequestException("Rates is unavailable", ratesUrl + "/rates");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
         }
 
         return response.getBody();

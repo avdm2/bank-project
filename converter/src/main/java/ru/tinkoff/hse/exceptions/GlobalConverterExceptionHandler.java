@@ -23,11 +23,4 @@ public class GlobalConverterExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
     }
-
-    @ExceptionHandler(RatesRequestException.class)
-    public ResponseEntity<String> handleRatesRequestException(RatesRequestException exception) {
-        return ResponseEntity
-                .status(HttpStatus.TOO_MANY_REQUESTS)
-                .body(exception.getMessage());
-    }
 }
