@@ -1,8 +1,6 @@
 package ru.tinkoff.hse.controllers;
 
-import io.github.resilience4j.ratelimiter.RateLimiter;
-import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import io.github.bucket4j.Bucket;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,19 +14,18 @@ import ru.tinkoff.hse.dto.CustomerCreationResponse;
 import ru.tinkoff.hse.dto.GetTotalBalanceResponse;
 import ru.tinkoff.hse.exceptions.RateLimitExceededException;
 import ru.tinkoff.hse.services.CustomerService;
-
-import java.util.function.Supplier;
+import ru.tinkoff.hse.services.RateLimiterService;
 
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
 
     private final CustomerService customerService;
-    private final RateLimiterRegistry rateLimiterRegistry;
+    private final RateLimiterService rateLimiterService;
 
-    public CustomerController(CustomerService customerService, RateLimiterRegistry rateLimiterRegistry) {
+    public CustomerController(CustomerService customerService, RateLimiterService rateLimiterService) {
         this.customerService = customerService;
-        this.rateLimiterRegistry = rateLimiterRegistry;
+        this.rateLimiterService = rateLimiterService;
     }
 
     @PostMapping
@@ -39,13 +36,12 @@ public class CustomerController {
     @GetMapping("/{customerId}/balance")
     public ResponseEntity<GetTotalBalanceResponse> getTotalBalance(@PathVariable("customerId") Integer customerId,
                                                                    @RequestParam("currency") String currency) {
-        RateLimiter rateLimiter = rateLimiterRegistry.rateLimiter("customerBalanceRateLimiter");
-        Supplier<GetTotalBalanceResponse> supplier = RateLimiter.decorateSupplier(rateLimiter,
-                () -> customerService.getTotalBalanceInCurrency(customerId, currency));
+        Bucket customerBucket = rateLimiterService.getBucket(customerId);
 
-        try {
-            return ResponseEntity.ok(supplier.get());
-        } catch (RequestNotPermitted exception) {
+        if (customerBucket.tryConsume(1)) {
+            GetTotalBalanceResponse response = customerService.getTotalBalanceInCurrency(customerId, currency);
+            return ResponseEntity.ok(response);
+        } else {
             throw new RateLimitExceededException("rate limit exceeded for customer " + customerId);
         }
     }
