@@ -19,7 +19,7 @@ public class RateLimiterService {
     }
 
     public RateLimiter getRateLimiterForCustomer(Integer customerId) {
-        return rateLimiters.computeIfAbsent(customerId.toString(), this::createRateLimiter);
+        return rateLimiters.computeIfAbsent(customerId.toString(), id -> createRateLimiter(id));
     }
 
     private RateLimiter createRateLimiter(String id) {
