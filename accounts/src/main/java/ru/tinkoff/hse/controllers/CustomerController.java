@@ -3,7 +3,6 @@ package ru.tinkoff.hse.controllers;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.tinkoff.hse.dto.CustomerCreationRequest;
 import ru.tinkoff.hse.dto.CustomerCreationResponse;
 import ru.tinkoff.hse.dto.GetTotalBalanceResponse;
+import ru.tinkoff.hse.exceptions.RateLimitExceededException;
 import ru.tinkoff.hse.services.CustomerService;
 
 import java.util.function.Supplier;
@@ -46,7 +46,7 @@ public class CustomerController {
         try {
             return ResponseEntity.ok(restrictedSupplier.get());
         } catch (RequestNotPermitted exception) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+            throw new RateLimitExceededException("rate limit exceeded for customer " + customerId);
         }
     }
 }
