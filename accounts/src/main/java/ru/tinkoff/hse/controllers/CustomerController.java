@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.tinkoff.hse.dto.CustomerCreationRequest;
 import ru.tinkoff.hse.dto.CustomerCreationResponse;
 import ru.tinkoff.hse.dto.GetTotalBalanceResponse;
-import ru.tinkoff.hse.exceptions.RateLimitExceededException;
 import ru.tinkoff.hse.services.CustomerService;
 
 @RestController
@@ -37,7 +36,7 @@ public class CustomerController {
         return ResponseEntity.ok().body(customerService.getTotalBalanceInCurrency(customerId, currency));
     }
 
-    public ResponseEntity<GetTotalBalanceResponse> rateLimitFallback(Long customerId, Throwable t) {
-        throw new RateLimitExceededException("Rate limit exceeded for customer " + customerId);
+    public ResponseEntity<String> rateLimitFallback(Long customerId, Throwable t) {
+        return ResponseEntity.status(500).body("rate limit exceeded for customer " + customerId);
     }
 }

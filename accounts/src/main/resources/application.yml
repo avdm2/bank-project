@@ -53,12 +53,12 @@ resilience4j.circuitbreaker:
       minimumNumberOfCalls: 10
       permittedNumberOfCallsInHalfOpenState: 3
       automaticTransitionFromOpenToHalfOpenEnabled: true
-      waitDurationInOpenState: 10s
+      waitDurationInOpenState: 10
       failureRateThreshold: 50
 
 resilience4j.ratelimiter:
   instances:
     customerBalanceRateLimiter:
       limitForPeriod: 5
-      limitRefreshPeriod: 1m
-      timeoutDuration: 0ms
+      limitRefreshPeriod: 1
+      timeoutDuration: 0
