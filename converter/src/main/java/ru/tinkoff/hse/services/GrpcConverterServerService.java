@@ -3,7 +3,6 @@ package ru.tinkoff.hse.services;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.springframework.web.client.HttpClientErrorException;
 import ru.tinkoff.hse.lib.ConvertRequest;
 import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.lib.CurrencyConverterGrpc;
@@ -27,7 +26,7 @@ public class GrpcConverterServerService extends CurrencyConverterGrpc.CurrencyCo
         Map<String, BigDecimal> rates;
         try {
             rates = ratesRequestService.getRatesFromRequest().getRates();
-        } catch (HttpClientErrorException e) {
+        } catch (Exception e) {
             responseObserver.onError(Status.UNAVAILABLE.withDescription("rates service is unavailable").asRuntimeException());
             return;
         }
