@@ -14,17 +14,9 @@ spring:
     open-in-view: false
     generate-ddl: true
 
-logging:
-  level:
-    org:
-      springframework:
-        web:
-          socket: TRACE
-
 management:
   endpoint:
     health:
-      show-details: always
       probes:
         enabled: true
   health:
@@ -45,17 +37,8 @@ resilience4j:
   circuitbreaker:
     instances:
       grpcConverterCircuitBreaker:
-        minimum-number-of-calls: 10
         permitted-number-of-calls-in-half-open-state: 3
-        automatic-transition-from-open-to-half-open-enabled: true
-        wait-duration-in-open-state:
-          seconds: 10
+        wait-duration-in-open-state: 10
+        minimum-number-of-calls: 10
         failure-rate-threshold: 50
-  ratelimiter:
-    instances:
-      customerBalanceRateLimiter:
-        limit-for-period: 5
-        limit-refresh-period:
-          seconds: 60
-        timeout-duration:
-          nanos: 0
+        automatic-transition-from-open-to-half-open-enabled: true

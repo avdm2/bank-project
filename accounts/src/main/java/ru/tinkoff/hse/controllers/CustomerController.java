@@ -37,12 +37,10 @@ public class CustomerController {
     public ResponseEntity<GetTotalBalanceResponse> getTotalBalance(@PathVariable("customerId") Integer customerId,
                                                                    @RequestParam("currency") String currency) {
         Bucket customerBucket = rateLimiterService.getBucket(customerId);
-
-        if (customerBucket.tryConsume(1)) {
-            GetTotalBalanceResponse response = customerService.getTotalBalanceInCurrency(customerId, currency);
-            return ResponseEntity.ok(response);
-        } else {
+        if (!customerBucket.tryConsume(1)) {
             throw new RateLimitExceededException("rate limit exceeded for customer " + customerId);
         }
+
+        return ResponseEntity.ok(customerService.getTotalBalanceInCurrency(customerId, currency));
     }
 }
