@@ -11,6 +11,7 @@ import ru.tinkoff.hse.dto.GetAccountResponse;
 import ru.tinkoff.hse.dto.TopUpRequest;
 import ru.tinkoff.hse.dto.TransferRequest;
 import ru.tinkoff.hse.entities.Account;
+import ru.tinkoff.hse.exceptions.ConverterGrpcException;
 import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.repositories.AccountRepository;
 
@@ -119,11 +120,16 @@ public class AccountService {
             receiverAccount.setAmount(receiverAccount.getAmount().add(amountInSenderCurrency));
             senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
         } else {
-            ConvertResponse converterResponse = grpcConverterClientService
-                    .convert(senderAccount.getCurrency(), receiverAccount.getCurrency(), amountInSenderCurrency);
+            ConvertResponse converterResponse;
+            try {
+                converterResponse = grpcConverterClientService
+                        .convert(senderAccount.getCurrency(), receiverAccount.getCurrency(), amountInSenderCurrency);
+            } catch (Exception e) {
+                throw new ConverterGrpcException("error with proceeding grpc request");
+            }
 
             if (converterResponse == null) {
-                throw new NullPointerException("error with gotten response from converter");
+                throw new ConverterGrpcException("rates unavailable");
             }
             receiverAccount.setAmount(receiverAccount.getAmount().add(new BigDecimal(converterResponse.getConvertedAmount())));
             senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));

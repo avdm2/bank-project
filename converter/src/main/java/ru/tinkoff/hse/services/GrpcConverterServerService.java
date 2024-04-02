@@ -1,5 +1,6 @@
 package ru.tinkoff.hse.services;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.web.client.HttpClientErrorException;
@@ -27,8 +28,7 @@ public class GrpcConverterServerService extends CurrencyConverterGrpc.CurrencyCo
         try {
             rates = ratesRequestService.getRatesFromRequest().getRates();
         } catch (HttpClientErrorException e) {
-            responseObserver.onNext(null);
-            responseObserver.onCompleted();
+            responseObserver.onError(Status.UNAVAILABLE.withDescription("rates service is unavailable").asRuntimeException());
             return;
         }
 

@@ -6,6 +6,7 @@ import ru.tinkoff.hse.dto.CustomerCreationRequest;
 import ru.tinkoff.hse.dto.CustomerCreationResponse;
 import ru.tinkoff.hse.entities.Account;
 import ru.tinkoff.hse.entities.Customer;
+import ru.tinkoff.hse.exceptions.ConverterGrpcException;
 import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.repositories.AccountRepository;
 import ru.tinkoff.hse.repositories.CustomerRepository;
@@ -60,11 +61,16 @@ public class CustomerService {
 
         BigDecimal balance = BigDecimal.ZERO;
         for (Account account : accountList) {
-            ConvertResponse converterResponse = grpcConverterClientService
-                    .convert(account.getCurrency(),currency, account.getAmount());
+            ConvertResponse converterResponse;
+            try {
+                converterResponse = grpcConverterClientService
+                        .convert(account.getCurrency(), currency, account.getAmount());
+            } catch (Exception e) {
+                throw new ConverterGrpcException("error with proceeding grpc request");
+            }
 
             if (converterResponse == null) {
-                throw new NullPointerException("error with gotten response from converter");
+                throw new ConverterGrpcException("rates unavailable");
             }
             balance = balance.add(new BigDecimal(converterResponse.getConvertedAmount()));
         }

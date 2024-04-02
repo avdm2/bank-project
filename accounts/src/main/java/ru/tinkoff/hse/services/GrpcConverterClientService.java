@@ -1,6 +1,7 @@
 package ru.tinkoff.hse.services;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.grpc.StatusRuntimeException;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.hse.lib.ConvertRequest;
 import ru.tinkoff.hse.lib.ConvertResponse;
@@ -24,6 +25,11 @@ public class GrpcConverterClientService {
                 .setToCurrency(to)
                 .setAmount(amount.toString())
                 .build();
-        return converterStub.convert(request);
+
+        try {
+            return converterStub.convert(request);
+        } catch (StatusRuntimeException e) {
+            return null;
+        }
     }
 }

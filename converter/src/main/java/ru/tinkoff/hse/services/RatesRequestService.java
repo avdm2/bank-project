@@ -1,6 +1,5 @@
 package ru.tinkoff.hse.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,12 +12,14 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.tinkoff.hse.exceptions.RatesRequestException;
 import ru.tinkoff.hse.models.RatesResponse;
 
+import java.net.ConnectException;
+
 @Service
-@Slf4j
 public class RatesRequestService {
 
     private final KeycloakTokenRequestService keycloakTokenRequestService;
@@ -31,9 +32,9 @@ public class RatesRequestService {
     }
 
     @Retryable(
-            value = { HttpClientErrorException.class },
+            retryFor = { HttpClientErrorException.class, RestClientException.class, ConnectException.class },
             maxAttempts = 4,
-            backoff = @Backoff(delayExpression = "50", multiplier = 2)
+            backoff = @Backoff(delay = 50, multiplier = 2, maxDelay = 150)
     )
     public RatesResponse getRatesFromRequest() {
         HttpHeaders headers = new HttpHeaders();
