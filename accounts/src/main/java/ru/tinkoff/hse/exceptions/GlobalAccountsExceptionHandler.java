@@ -32,4 +32,11 @@ public class GlobalAccountsExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<String> handleRateLimitExceededException(RateLimitExceededException exception) {
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(exception.getMessage());
+    }
 }
