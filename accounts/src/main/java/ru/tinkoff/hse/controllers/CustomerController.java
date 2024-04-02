@@ -40,11 +40,11 @@ public class CustomerController {
     public ResponseEntity<GetTotalBalanceResponse> getTotalBalance(@PathVariable("customerId") Integer customerId,
                                                                    @RequestParam("currency") String currency) {
         RateLimiter rateLimiter = rateLimiterRegistry.rateLimiter("customerRateLimiter");
-        Supplier<GetTotalBalanceResponse> restrictedSupplier = RateLimiter.decorateSupplier(rateLimiter,
+        Supplier<GetTotalBalanceResponse> supplier = RateLimiter.decorateSupplier(rateLimiter,
                 () -> customerService.getTotalBalanceInCurrency(customerId, currency));
 
         try {
-            return ResponseEntity.ok(restrictedSupplier.get());
+            return ResponseEntity.ok(supplier.get());
         } catch (RequestNotPermitted exception) {
             throw new RateLimitExceededException("rate limit exceeded for customer " + customerId);
         }
