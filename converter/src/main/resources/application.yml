@@ -10,7 +10,6 @@ management:
     livenessstate:
       enabled: true
 
-
 app:
   rates-url: ${RATES_URL:http://rates:8080}
   keycloak-url: ${KEYCLOAK_URL:123}

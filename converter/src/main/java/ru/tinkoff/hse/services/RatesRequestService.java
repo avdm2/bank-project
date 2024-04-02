@@ -31,7 +31,7 @@ public class RatesRequestService {
     }
 
     @Retryable(
-            value = { HttpClientErrorException.class },
+            value = { InvalidEndpointRequestException.class },
             maxAttempts = 4,
             backoff = @Backoff(delayExpression = "50", multiplier = 2)
     )

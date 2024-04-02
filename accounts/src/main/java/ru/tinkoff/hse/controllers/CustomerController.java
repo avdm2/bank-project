@@ -36,7 +36,7 @@ public class CustomerController {
         return ResponseEntity.ok().body(customerService.getTotalBalanceInCurrency(customerId, currency));
     }
 
-    public ResponseEntity<String> rateLimitFallback(Long customerId, Throwable t) {
-        return ResponseEntity.status(500).body("rate limit exceeded for customer " + customerId);
+    public ResponseEntity<String> rateLimitFallback(Integer customerId, String currency, Throwable t) {
+        return ResponseEntity.status(429).body("rate limit exceeded for customer " + customerId);
     }
 }

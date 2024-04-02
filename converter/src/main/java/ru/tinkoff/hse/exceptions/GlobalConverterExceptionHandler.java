@@ -27,7 +27,7 @@ public class GlobalConverterExceptionHandler {
     @ExceptionHandler(RatesRequestException.class)
     public ResponseEntity<String> handleRatesRequestException(RatesRequestException exception) {
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.TOO_MANY_REQUESTS)
                 .body(exception.getMessage());
     }
 }
