@@ -58,4 +58,4 @@ resilience4j:
         limit-refresh-period:
           seconds: 60
         timeout-duration:
-          nanos: 1
+          nanos: 0
