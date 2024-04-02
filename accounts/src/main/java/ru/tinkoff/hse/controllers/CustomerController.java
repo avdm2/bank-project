@@ -15,7 +15,7 @@ import ru.tinkoff.hse.dto.GetTotalBalanceResponse;
 import ru.tinkoff.hse.services.CustomerService;
 
 @RestController
-@RequestMapping
+@RequestMapping("/customers")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -24,12 +24,12 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    @PostMapping("/customers")
+    @PostMapping
     public ResponseEntity<CustomerCreationResponse> create(@RequestBody CustomerCreationRequest request) {
         return ResponseEntity.ok().body(customerService.createCustomer(request));
     }
 
-    @GetMapping("/customers/{customerId}/balance")
+    @GetMapping("/{customerId}/balance")
     @RateLimiter(name = "customerBalanceRateLimiter", fallbackMethod = "rateLimitFallback")
     public ResponseEntity<GetTotalBalanceResponse> getTotalBalance(@PathVariable("customerId") Integer customerId,
                                                                    @RequestParam("currency") String currency) {
