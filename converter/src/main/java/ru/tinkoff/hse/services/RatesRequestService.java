@@ -57,7 +57,7 @@ public class RatesRequestService {
     }
 
     @Recover
-    public RatesResponse recover(Exception e) {
+    public RatesResponse recover(HttpClientErrorException  e) {
         throw new RatesRequestException("failed to get rates after retries");
     }
 }
