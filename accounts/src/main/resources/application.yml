@@ -51,11 +51,10 @@ resilience4j:
         wait-duration-in-open-state:
           seconds: 10
         failure-rate-threshold: 50
-  ratelimiter:
-    instances:
-      customerBalanceRateLimiter:
-        limit-for-period: 5
-        limit-refresh-period:
-          seconds: 60
-        timeout-duration:
-          nanos: 0
+
+resilience4j.ratelimiter:
+  instances:
+    customerRateLimiter:
+      limitForPeriod: 5
+      limitRefreshPeriod: 1s
+      timeoutDuration: 0ms
