@@ -32,10 +32,6 @@ management:
       enabled: true
     livenessstate:
       enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: circuitbreakers
 
 grpc:
   client:
