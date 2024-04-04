@@ -1,9 +1,9 @@
 package ru.tinkoff.hse.services;
 
 import org.springframework.stereotype.Service;
-import ru.tinkoff.hse.dto.GetTotalBalanceResponse;
-import ru.tinkoff.hse.dto.CustomerCreationRequest;
-import ru.tinkoff.hse.dto.CustomerCreationResponse;
+import ru.tinkoff.hse.dto.responses.GetTotalBalanceResponse;
+import ru.tinkoff.hse.dto.requests.CustomerCreationRequest;
+import ru.tinkoff.hse.dto.responses.CustomerCreationResponse;
 import ru.tinkoff.hse.entities.Account;
 import ru.tinkoff.hse.entities.Customer;
 import ru.tinkoff.hse.exceptions.ConverterGrpcException;

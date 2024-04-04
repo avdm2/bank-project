@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.dto;
+package ru.tinkoff.hse.dto.responses;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 @Setter
 @Getter
 @Accessors(chain = true)
-public class GetTotalBalanceResponse {
+public class ConverterDefaultResponse {
 
-    private BigDecimal balance;
     private String currency;
+    private BigDecimal amount;
 }

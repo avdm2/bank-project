@@ -4,10 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Setter
 @Getter
+@Setter
 @Accessors(chain = true)
-public class AccountCreationResponse {
+public class OutboxMessage {
 
-    private Integer accountNumber;
+    private Integer customerId;
+    private String message;
 }

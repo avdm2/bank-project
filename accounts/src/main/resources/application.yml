@@ -25,6 +25,9 @@ management:
     livenessstate:
       enabled: true
 
+notifications:
+  url: ${NOTIFICATIONS_URL:http://notifications:8080}
+
 grpc:
   client:
     grpcConverterClientService:

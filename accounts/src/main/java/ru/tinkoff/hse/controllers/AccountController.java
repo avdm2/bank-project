@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.tinkoff.hse.dto.AccountCreationRequest;
-import ru.tinkoff.hse.dto.AccountCreationResponse;
-import ru.tinkoff.hse.dto.GetAccountResponse;
-import ru.tinkoff.hse.dto.TopUpRequest;
-import ru.tinkoff.hse.dto.TransferRequest;
+import ru.tinkoff.hse.dto.requests.AccountCreationRequest;
+import ru.tinkoff.hse.dto.responses.AccountCreationResponse;
+import ru.tinkoff.hse.dto.responses.GetAccountResponse;
+import ru.tinkoff.hse.dto.requests.TopUpRequest;
+import ru.tinkoff.hse.dto.requests.TransferRequest;
 import ru.tinkoff.hse.services.AccountService;
 
 @RestController

@@ -4,16 +4,19 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tinkoff.hse.dto.AccountCreationRequest;
-import ru.tinkoff.hse.dto.AccountCreationResponse;
+import ru.tinkoff.hse.dto.requests.AccountCreationRequest;
+import ru.tinkoff.hse.dto.responses.AccountCreationResponse;
 import ru.tinkoff.hse.dto.AccountMessage;
-import ru.tinkoff.hse.dto.GetAccountResponse;
-import ru.tinkoff.hse.dto.TopUpRequest;
-import ru.tinkoff.hse.dto.TransferRequest;
+import ru.tinkoff.hse.dto.responses.GetAccountResponse;
+import ru.tinkoff.hse.dto.requests.TopUpRequest;
+import ru.tinkoff.hse.dto.requests.TransferRequest;
 import ru.tinkoff.hse.entities.Account;
+import ru.tinkoff.hse.entities.OutboxEvent;
 import ru.tinkoff.hse.exceptions.ConverterGrpcException;
 import ru.tinkoff.hse.lib.ConvertResponse;
+import ru.tinkoff.hse.models.enums.OperationType;
 import ru.tinkoff.hse.repositories.AccountRepository;
+import ru.tinkoff.hse.repositories.OutboxRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,13 +27,16 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final OutboxRepository outboxRepository;
     private final GrpcConverterClientService grpcConverterClientService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public AccountService(AccountRepository accountRepository,
+                          OutboxRepository outboxRepository,
                           GrpcConverterClientService grpcConverterClientService,
                           SimpMessagingTemplate simpMessagingTemplate) {
         this.accountRepository = accountRepository;
+        this.outboxRepository = outboxRepository;
         this.grpcConverterClientService = grpcConverterClientService;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
@@ -92,6 +98,7 @@ public class AccountService {
 
         accountRepository.save(account);
         sendMessage(account);
+        createOutboxEvent(account, OperationType.ADD, requestAmount);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -112,6 +119,7 @@ public class AccountService {
         Account senderAccount = optionalSenderAccount.get();
         Account receiverAccount = optionalReceiverAccount.get();
         BigDecimal amountInSenderCurrency = request.getAmountInSenderCurrency();
+        BigDecimal amountInReceiverCurrency = null;
         if (senderAccount.getAmount().compareTo(amountInSenderCurrency) < 0) {
             throw new IllegalArgumentException("amount to transfer > available funds");
         }
@@ -131,7 +139,9 @@ public class AccountService {
             if (converterResponse == null) {
                 throw new ConverterGrpcException("rates unavailable");
             }
-            receiverAccount.setAmount(receiverAccount.getAmount().add(new BigDecimal(converterResponse.getConvertedAmount())));
+
+            amountInReceiverCurrency = new BigDecimal(converterResponse.getConvertedAmount());
+            receiverAccount.setAmount(receiverAccount.getAmount().add(amountInReceiverCurrency));
             senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
         }
 
@@ -139,7 +149,9 @@ public class AccountService {
         accountRepository.save(senderAccount);
 
         sendMessage(senderAccount);
+        createOutboxEvent(senderAccount, OperationType.SUBTRACT, amountInSenderCurrency);
         sendMessage(receiverAccount);
+        createOutboxEvent(receiverAccount, OperationType.ADD, amountInReceiverCurrency);
     }
 
     private void sendMessage(Account account) {
@@ -148,5 +160,12 @@ public class AccountService {
                 .setCurrency(account.getCurrency())
                 .setBalance(account.getAmount().setScale(2, RoundingMode.HALF_EVEN));
         simpMessagingTemplate.convertAndSend("/topic/accounts", accountMessage);
+    }
+
+    private void createOutboxEvent(Account account, OperationType operation, BigDecimal amountToAdd) {
+        String message = "Счет " + account.getAccountNumber() + ". Операция: " + operation + amountToAdd + ". Баланс: " + account.getAmount();
+        outboxRepository.save(new OutboxEvent()
+                .setCustomerId(account.getCustomerId())
+                .setMessage(message));
     }
 }

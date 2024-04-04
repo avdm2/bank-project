@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.dto;
+package ru.tinkoff.hse.dto.requests;
 
 import lombok.Getter;
 
