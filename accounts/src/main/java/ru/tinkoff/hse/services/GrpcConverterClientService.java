@@ -20,7 +20,7 @@ public class GrpcConverterClientService {
         this.converterStub = converterStub;
     }
 
-    @CircuitBreaker(name = "converterCircuitBreaker")
+    @CircuitBreaker(name = "grpConverterCircuitBreaker")
     public ConvertResponse convert(String from, String to, BigDecimal amount) {
         ConvertRequest request = ConvertRequest.newBuilder()
                 .setFromCurrency(from)
