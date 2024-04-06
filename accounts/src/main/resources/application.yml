@@ -39,7 +39,7 @@ grpc:
 resilience4j:
   circuitbreaker:
     instances:
-      grpcConverterCircuitBreaker:
+      converterCircuitBreaker:
         permitted-number-of-calls-in-half-open-state: 3
         wait-duration-in-open-state: 10
         minimum-number-of-calls: 10

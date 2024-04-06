@@ -12,12 +12,9 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.tinkoff.hse.exceptions.RatesRequestException;
 import ru.tinkoff.hse.models.RatesResponse;
-
-import java.net.ConnectException;
 
 @Service
 public class RatesRequestService {
@@ -32,7 +29,6 @@ public class RatesRequestService {
     }
 
     @Retryable(
-            retryFor = { HttpClientErrorException.class, RestClientException.class, ConnectException.class },
             maxAttempts = 4,
             backoff = @Backoff(delay = 50, multiplier = 2, maxDelay = 150)
     )
