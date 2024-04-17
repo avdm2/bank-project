@@ -2,12 +2,13 @@ package ru.tinkoff.hse.configurations;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
-import ru.tinkoff.hse.entities.Transaction;
 
+@Configuration
 public class RedisConfiguration {
 
     @Value("${redis.host}")
@@ -25,10 +26,10 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisTemplate<String, Transaction> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Transaction> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
-        template.setValueSerializer(new GenericToStringSerializer<>(Transaction.class));
+        template.setValueSerializer(new GenericToStringSerializer<>(Object.class));
         return template;
     }
 }
