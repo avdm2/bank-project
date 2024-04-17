@@ -1,7 +1,8 @@
 package ru.tinkoff.hse.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import ru.tinkoff.hse.dto.responses.TransactionResponse;
 import ru.tinkoff.hse.entities.Account;
 import ru.tinkoff.hse.entities.OutboxEvent;
 import ru.tinkoff.hse.entities.Transaction;
+import ru.tinkoff.hse.exceptions.CacheException;
 import ru.tinkoff.hse.exceptions.ConverterGrpcException;
 import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.models.enums.OperationType;
@@ -32,7 +34,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@DependsOn("redisConfiguration")
 public class AccountService {
 
     private final AccountRepository accountRepository;
@@ -40,7 +41,8 @@ public class AccountService {
     private final TransactionRepository transactionRepository;
     private final GrpcConverterClientService grpcConverterClientService;
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final RedisTemplate<String, Transaction> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final ObjectMapper objectMapper;
 
     @Value("${redis.idempotency.ttl}")
     private int idempotencyTTLSeconds;
@@ -48,13 +50,14 @@ public class AccountService {
 
     public AccountService(AccountRepository accountRepository, OutboxRepository outboxRepository, TransactionRepository transactionRepository,
                           GrpcConverterClientService grpcConverterClientService, SimpMessagingTemplate simpMessagingTemplate,
-                          RedisTemplate<String, Transaction> redisTemplate) {
+                          RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.accountRepository = accountRepository;
         this.outboxRepository = outboxRepository;
         this.transactionRepository = transactionRepository;
         this.grpcConverterClientService = grpcConverterClientService;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
@@ -96,8 +99,12 @@ public class AccountService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public TransactionResponse topUp(Integer accountNumber, TopUpRequest request, String idempotencyKey) {
         if (idempotencyKey != null && Boolean.TRUE.equals(redisTemplate.hasKey(idempotencyKey))) {
-            Transaction transaction = redisTemplate.opsForValue().get(idempotencyKey);
-            return new TransactionResponse().setTransactionId(transaction.getTransactionId()).setAmount(transaction.getAmount());
+            String cachedResult = redisTemplate.opsForValue().get(idempotencyKey);
+            try {
+                return objectMapper.readValue(cachedResult, TransactionResponse.class);
+            } catch (JsonProcessingException e) {
+                throw new CacheException("error reading cache");
+            }
         }
 
         BigDecimal requestAmount = request.getAmount();
@@ -131,8 +138,12 @@ public class AccountService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public TransactionResponse transfer(TransferRequest request, String idempotencyKey) {
         if (idempotencyKey != null && Boolean.TRUE.equals(redisTemplate.hasKey(idempotencyKey))) {
-            Transaction transaction = redisTemplate.opsForValue().get(idempotencyKey);
-            return new TransactionResponse().setTransactionId(transaction.getTransactionId()).setAmount(transaction.getAmount());
+            String cachedResult = redisTemplate.opsForValue().get(idempotencyKey);
+            try {
+                return objectMapper.readValue(cachedResult, TransactionResponse.class);
+            } catch (JsonProcessingException e) {
+                throw new CacheException("error reading cache");
+            }
         }
 
         if (request.getReceiverAccount() == null || request.getSenderAccount() == null || request.getAmountInSenderCurrency() == null) {
@@ -192,7 +203,12 @@ public class AccountService {
 
     private void saveInCache(String idempotencyKey, Transaction transaction) {
         if (idempotencyKey != null) {
-            redisTemplate.opsForValue().set(idempotencyKey, transaction, idempotencyTTLSeconds, TimeUnit.SECONDS);
+            try {
+                String responseAsString = objectMapper.writeValueAsString(transaction);
+                redisTemplate.opsForValue().set(idempotencyKey, responseAsString, idempotencyTTLSeconds, TimeUnit.SECONDS);
+            } catch (JsonProcessingException e) {
+                throw new CacheException("error writing cache");
+            }
         }
     }
 
