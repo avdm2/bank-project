@@ -1,6 +1,7 @@
 package ru.tinkoff.hse.services;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@DependsOn("redisConfiguration")
 public class AccountService {
 
     private final AccountRepository accountRepository;
