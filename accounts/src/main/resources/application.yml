@@ -19,20 +19,11 @@ management:
     health:
       probes:
         enabled: true
-      show-details: always
   health:
-    ratelimiters:
-      enabled: true
-    circuitbreakers:
-      enabled: true
     readinessstate:
       enabled: true
     livenessstate:
       enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: "*"
 
 notifications:
   url: ${NOTIFICATION_SERVICE_URL:http://notifications:8080}
@@ -55,10 +46,8 @@ resilience4j:
   circuitbreaker:
     instances:
       CircuitBreakerService:
-        sliding-window-size: 10
-        sliding-window-type: COUNT_BASED
         permitted-number-of-calls-in-half-open-state: 3
-        wait-duration-in-open-state: 10s
+        wait-duration-in-open-state: 10
         minimum-number-of-calls: 10
         failure-rate-threshold: 50
         automatic-transition-from-open-to-half-open-enabled: true
