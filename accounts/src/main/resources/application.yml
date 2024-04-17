@@ -37,6 +37,12 @@ management:
 notifications:
   url: ${NOTIFICATION_SERVICE_URL:http://notifications:8080}
 
+redis:
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+  idempotency:
+    ttl: 30
+
 grpc:
   client:
     grpcConverterClientService:

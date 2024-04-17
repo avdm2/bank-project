@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.services;
+package ru.tinkoff.hse.utils;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;

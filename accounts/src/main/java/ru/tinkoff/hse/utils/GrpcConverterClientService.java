@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.services;
+package ru.tinkoff.hse.utils;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.grpc.StatusRuntimeException;

@@ -50,4 +50,11 @@ public class GlobalAccountsExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
+
+    @ExceptionHandler(CacheException.class)
+    public ResponseEntity<String> handleCacheReadingException(CacheException exception) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exception.getMessage());
+    }
 }

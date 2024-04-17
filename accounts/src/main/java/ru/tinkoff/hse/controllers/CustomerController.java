@@ -14,7 +14,7 @@ import ru.tinkoff.hse.dto.responses.CustomerCreationResponse;
 import ru.tinkoff.hse.dto.responses.GetTotalBalanceResponse;
 import ru.tinkoff.hse.exceptions.RateLimitExceededException;
 import ru.tinkoff.hse.services.CustomerService;
-import ru.tinkoff.hse.services.RateLimiterService;
+import ru.tinkoff.hse.utils.RateLimiterService;
 
 @RestController
 @RequestMapping("/customers")

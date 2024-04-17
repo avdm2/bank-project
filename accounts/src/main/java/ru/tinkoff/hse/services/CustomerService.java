@@ -10,6 +10,7 @@ import ru.tinkoff.hse.exceptions.ConverterGrpcException;
 import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.repositories.AccountRepository;
 import ru.tinkoff.hse.repositories.CustomerRepository;
+import ru.tinkoff.hse.utils.GrpcConverterClientService;
 
 import java.math.BigDecimal;
 import java.util.List;

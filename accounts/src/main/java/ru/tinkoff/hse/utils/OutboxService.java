@@ -1,4 +1,4 @@
-package ru.tinkoff.hse.services;
+package ru.tinkoff.hse.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

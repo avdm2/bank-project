@@ -1,5 +1,9 @@
 package ru.tinkoff.hse.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -10,35 +14,50 @@ import ru.tinkoff.hse.dto.AccountMessage;
 import ru.tinkoff.hse.dto.responses.GetAccountResponse;
 import ru.tinkoff.hse.dto.requests.TopUpRequest;
 import ru.tinkoff.hse.dto.requests.TransferRequest;
+import ru.tinkoff.hse.dto.responses.TransactionResponse;
 import ru.tinkoff.hse.entities.Account;
 import ru.tinkoff.hse.entities.OutboxEvent;
+import ru.tinkoff.hse.entities.Transaction;
+import ru.tinkoff.hse.exceptions.CacheException;
 import ru.tinkoff.hse.exceptions.ConverterGrpcException;
 import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.models.enums.OperationType;
 import ru.tinkoff.hse.repositories.AccountRepository;
 import ru.tinkoff.hse.repositories.OutboxRepository;
+import ru.tinkoff.hse.repositories.TransactionRepository;
+import ru.tinkoff.hse.utils.GrpcConverterClientService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final OutboxRepository outboxRepository;
+    private final TransactionRepository transactionRepository;
     private final GrpcConverterClientService grpcConverterClientService;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final ObjectMapper objectMapper;
 
-    public AccountService(AccountRepository accountRepository,
-                          OutboxRepository outboxRepository,
-                          GrpcConverterClientService grpcConverterClientService,
-                          SimpMessagingTemplate simpMessagingTemplate) {
+    @Value("${redis.idempotency.ttl}")
+    private int idempotencyTTLSeconds;
+    private final List<String> availableCurrencies = List.of("RUB", "USD", "GBP", "EUR", "CYN");
+
+    public AccountService(AccountRepository accountRepository, OutboxRepository outboxRepository, TransactionRepository transactionRepository,
+                          GrpcConverterClientService grpcConverterClientService, SimpMessagingTemplate simpMessagingTemplate,
+                          RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.accountRepository = accountRepository;
         this.outboxRepository = outboxRepository;
+        this.transactionRepository = transactionRepository;
         this.grpcConverterClientService = grpcConverterClientService;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
@@ -46,7 +65,7 @@ public class AccountService {
             throw new IllegalArgumentException("check required fields");
         }
 
-        if (!List.of("RUB", "USD", "GBP", "EUR", "CYN").contains(request.getCurrency())) {
+        if (!availableCurrencies.contains(request.getCurrency())) {
             throw new IllegalArgumentException("illegal currency");
         }
 
@@ -77,7 +96,17 @@ public class AccountService {
                 .setCurrency(account.getCurrency());
     }
 
-    public void topUp(Integer accountNumber, TopUpRequest request) {
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public TransactionResponse topUp(Integer accountNumber, TopUpRequest request, String idempotencyKey) {
+        if (idempotencyKey != null && Boolean.TRUE.equals(redisTemplate.hasKey(idempotencyKey))) {
+            String cachedResult = redisTemplate.opsForValue().get(idempotencyKey);
+            try {
+                return objectMapper.readValue(cachedResult, TransactionResponse.class);
+            } catch (JsonProcessingException e) {
+                throw new CacheException("error reading cache");
+            }
+        }
+
         BigDecimal requestAmount = request.getAmount();
         if (requestAmount == null) {
             throw new IllegalArgumentException("check required fields");
@@ -97,12 +126,26 @@ public class AccountService {
         account.setAmount(newAmount);
 
         accountRepository.save(account);
+
         sendMessage(account);
         createOutboxEvent(account, OperationType.ADD, requestAmount);
+
+        Transaction transaction = createAndSaveTransaction(requestAmount, accountNumber);
+        saveInCache(idempotencyKey, transaction);
+        return new TransactionResponse().setTransactionId(transaction.getTransactionId()).setAmount(requestAmount);
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    public void transfer(TransferRequest request) {
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public TransactionResponse transfer(TransferRequest request, String idempotencyKey) {
+        if (idempotencyKey != null && Boolean.TRUE.equals(redisTemplate.hasKey(idempotencyKey))) {
+            String cachedResult = redisTemplate.opsForValue().get(idempotencyKey);
+            try {
+                return objectMapper.readValue(cachedResult, TransactionResponse.class);
+            } catch (JsonProcessingException e) {
+                throw new CacheException("error reading cache");
+            }
+        }
+
         if (request.getReceiverAccount() == null || request.getSenderAccount() == null || request.getAmountInSenderCurrency() == null) {
             throw new IllegalArgumentException("check required fields");
         }
@@ -152,6 +195,21 @@ public class AccountService {
         createOutboxEvent(senderAccount, OperationType.SUBTRACT, amountInSenderCurrency);
         sendMessage(receiverAccount);
         createOutboxEvent(receiverAccount, OperationType.ADD, amountInReceiverCurrency);
+
+        Transaction transaction = createAndSaveTransaction(amountInSenderCurrency.negate(), senderAccount.getAccountNumber());
+        saveInCache(idempotencyKey, transaction);
+        return new TransactionResponse().setTransactionId(transaction.getTransactionId()).setAmount(amountInSenderCurrency);
+    }
+
+    private void saveInCache(String idempotencyKey, Transaction transaction) {
+        if (idempotencyKey != null) {
+            try {
+                String responseAsString = objectMapper.writeValueAsString(transaction);
+                redisTemplate.opsForValue().set(idempotencyKey, responseAsString, idempotencyTTLSeconds, TimeUnit.SECONDS);
+            } catch (JsonProcessingException e) {
+                throw new CacheException("error writing cache");
+            }
+        }
     }
 
     private void sendMessage(Account account) {
@@ -167,5 +225,11 @@ public class AccountService {
         outboxRepository.save(new OutboxEvent()
                 .setCustomerId(account.getCustomerId())
                 .setMessage(message));
+    }
+
+    private Transaction createAndSaveTransaction(BigDecimal amount, Integer accountNumber) {
+        Transaction transaction = new Transaction().setAmount(amount).setAccountNumber(accountNumber);
+        transactionRepository.save(transaction);
+        return transaction;
     }
 }
