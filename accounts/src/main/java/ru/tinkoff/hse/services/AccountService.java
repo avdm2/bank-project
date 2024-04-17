@@ -1,6 +1,5 @@
 package ru.tinkoff.hse.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -47,7 +46,7 @@ public class AccountService {
 
     public AccountService(AccountRepository accountRepository, OutboxRepository outboxRepository, TransactionRepository transactionRepository,
                           GrpcConverterClientService grpcConverterClientService, SimpMessagingTemplate simpMessagingTemplate,
-                          RedisTemplate<String, Transaction> redisTemplate, ObjectMapper objectMapper) {
+                          RedisTemplate<String, Transaction> redisTemplate) {
         this.accountRepository = accountRepository;
         this.outboxRepository = outboxRepository;
         this.transactionRepository = transactionRepository;
