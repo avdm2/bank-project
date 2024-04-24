@@ -14,12 +14,14 @@ import ru.tinkoff.hse.dto.requests.TopUpRequest;
 import ru.tinkoff.hse.dto.requests.TransferRequest;
 import ru.tinkoff.hse.dto.responses.TransactionResponse;
 import ru.tinkoff.hse.entities.Account;
+import ru.tinkoff.hse.entities.Fee;
 import ru.tinkoff.hse.entities.OutboxEvent;
 import ru.tinkoff.hse.entities.Transaction;
 import ru.tinkoff.hse.exceptions.ConverterGrpcException;
 import ru.tinkoff.hse.lib.ConvertResponse;
 import ru.tinkoff.hse.models.enums.OperationType;
 import ru.tinkoff.hse.repositories.AccountRepository;
+import ru.tinkoff.hse.repositories.FeeRepository;
 import ru.tinkoff.hse.repositories.OutboxRepository;
 import ru.tinkoff.hse.repositories.TransactionRepository;
 import ru.tinkoff.hse.utils.GrpcConverterClientService;
@@ -36,6 +38,8 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final OutboxRepository outboxRepository;
     private final TransactionRepository transactionRepository;
+    private final FeeRepository feeRepository;
+
     private final GrpcConverterClientService grpcConverterClientService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RedisTemplate<String, Transaction> redisTemplate;
@@ -46,13 +50,14 @@ public class AccountService {
 
     public AccountService(AccountRepository accountRepository, OutboxRepository outboxRepository, TransactionRepository transactionRepository,
                           GrpcConverterClientService grpcConverterClientService, SimpMessagingTemplate simpMessagingTemplate,
-                          RedisTemplate<String, Transaction> redisTemplate) {
+                          RedisTemplate<String, Transaction> redisTemplate, FeeRepository feeRepository) {
         this.accountRepository = accountRepository;
         this.outboxRepository = outboxRepository;
         this.transactionRepository = transactionRepository;
         this.grpcConverterClientService = grpcConverterClientService;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.redisTemplate = redisTemplate;
+        this.feeRepository = feeRepository;
     }
 
     public AccountCreationResponse createAccount(AccountCreationRequest request) {
@@ -150,7 +155,9 @@ public class AccountService {
         Account receiverAccount = optionalReceiverAccount.get();
         BigDecimal amountInSenderCurrency = request.getAmountInSenderCurrency();
         BigDecimal amountInReceiverCurrency = null;
-        if (senderAccount.getAmount().compareTo(amountInSenderCurrency) < 0) {
+        BigDecimal totalAmountInSenderCurrency = amountInSenderCurrency.add(getAndCalculateFee(amountInSenderCurrency));
+
+        if (senderAccount.getAmount().compareTo(totalAmountInSenderCurrency) < 0) {
             throw new IllegalArgumentException("amount to transfer > available funds");
         }
 
@@ -172,20 +179,31 @@ public class AccountService {
 
             amountInReceiverCurrency = new BigDecimal(converterResponse.getConvertedAmount());
             receiverAccount.setAmount(receiverAccount.getAmount().add(amountInReceiverCurrency));
-            senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
+            senderAccount.setAmount(senderAccount.getAmount().subtract(totalAmountInSenderCurrency));
         }
 
         accountRepository.save(receiverAccount);
         accountRepository.save(senderAccount);
 
         sendMessage(senderAccount);
-        createOutboxEvent(senderAccount, OperationType.SUBTRACT, amountInSenderCurrency);
+        createOutboxEvent(senderAccount, OperationType.SUBTRACT, totalAmountInSenderCurrency);
         sendMessage(receiverAccount);
         createOutboxEvent(receiverAccount, OperationType.ADD, amountInReceiverCurrency);
 
-        Transaction transaction = createAndSaveTransaction(amountInSenderCurrency.negate(), senderAccount.getAccountNumber());
+        Transaction transaction = createAndSaveTransaction(totalAmountInSenderCurrency.negate(), senderAccount.getAccountNumber());
+        createAndSaveTransaction(amountInReceiverCurrency, receiverAccount.getAccountNumber());
         saveInCache(idempotencyKey, transaction);
-        return new TransactionResponse().setTransactionId(transaction.getTransactionId()).setAmount(amountInSenderCurrency);
+
+        return new TransactionResponse().setTransactionId(transaction.getTransactionId()).setAmount(transaction.getAmount());
+    }
+
+    private BigDecimal getAndCalculateFee(BigDecimal amountInSenderCurrency) {
+        Optional<Fee> feeOptional = feeRepository.findFirstByOrderByCreatedAtDesc();
+        double feeValue = 0;
+        if (feeOptional.isPresent()) {
+            feeValue = feeOptional.get().getFee();
+        }
+        return amountInSenderCurrency.multiply(BigDecimal.valueOf(feeValue));
     }
 
     private void saveInCache(String idempotencyKey, Transaction transaction) {
