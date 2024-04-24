@@ -157,13 +157,13 @@ public class AccountService {
         BigDecimal amountInReceiverCurrency = amountInSenderCurrency;
         BigDecimal fee = getAndCalculateFee(amountInSenderCurrency);
 
-        if (senderAccount.getAmount().compareTo(amountInSenderCurrency.add(fee)) < 0) {
+        if (senderAccount.getAmount().compareTo(amountInSenderCurrency) < 0) {
             throw new IllegalArgumentException("amount to transfer > available funds");
         }
 
         if (senderAccount.getCurrency().equals(receiverAccount.getCurrency())) {
-            receiverAccount.setAmount(receiverAccount.getAmount().add(amountInSenderCurrency));
-            senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency.add(fee)));
+            receiverAccount.setAmount(receiverAccount.getAmount().add(amountInSenderCurrency.subtract(fee)));
+            senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
         } else {
             ConvertResponse converterResponse;
             try {
@@ -178,20 +178,20 @@ public class AccountService {
             }
 
             amountInReceiverCurrency = new BigDecimal(converterResponse.getConvertedAmount());
-            receiverAccount.setAmount(receiverAccount.getAmount().add(amountInReceiverCurrency));
-            senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency.add(fee)));
+            receiverAccount.setAmount(receiverAccount.getAmount().add(amountInReceiverCurrency.subtract(fee)));
+            senderAccount.setAmount(senderAccount.getAmount().subtract(amountInSenderCurrency));
         }
 
         accountRepository.save(receiverAccount);
         accountRepository.save(senderAccount);
 
         sendMessage(senderAccount);
-        createOutboxEvent(senderAccount, OperationType.SUBTRACT, amountInSenderCurrency.add(fee));
+        createOutboxEvent(senderAccount, OperationType.SUBTRACT, amountInSenderCurrency);
         sendMessage(receiverAccount);
-        createOutboxEvent(receiverAccount, OperationType.ADD, amountInReceiverCurrency);
+        createOutboxEvent(receiverAccount, OperationType.ADD, amountInReceiverCurrency.subtract(fee));
 
-        Transaction transaction = createAndSaveTransaction(amountInSenderCurrency.add(fee).negate(), senderAccount.getAccountNumber());
-        createAndSaveTransaction(amountInReceiverCurrency, receiverAccount.getAccountNumber());
+        Transaction transaction = createAndSaveTransaction(amountInSenderCurrency.negate(), senderAccount.getAccountNumber());
+        createAndSaveTransaction(amountInReceiverCurrency.subtract(fee), receiverAccount.getAccountNumber());
         saveInCache(idempotencyKey, transaction);
 
         return new TransactionResponse().setTransactionId(transaction.getTransactionId()).setAmount(transaction.getAmount());
