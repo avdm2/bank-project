@@ -34,6 +34,12 @@ redis:
   idempotency:
     ttl: 30
 
+kafka:
+  topic:
+    fee: ${KAFKA_TOPIC:fees}
+  bootstrap:
+    servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+
 grpc:
   client:
     grpcConverterClientService:

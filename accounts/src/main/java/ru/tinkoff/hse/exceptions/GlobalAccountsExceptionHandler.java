@@ -57,4 +57,11 @@ public class GlobalAccountsExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
+
+    @ExceptionHandler(IllegalFeeAmountException.class)
+    public ResponseEntity<String> handleIllegalFeeAmountException(IllegalFeeAmountException exception) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
+    }
 }
