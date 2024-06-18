@@ -30,25 +30,25 @@ jobs:
 
       - name: Build and push the Docker Image - CONVERTER
         run: |
-          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/hw3-converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ./converter
-          docker push ${{ secrets.DOCKER_USERNAME }}/hw3-converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
+          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ./converter
+          docker push ${{ secrets.DOCKER_USERNAME }}/converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
 
       - name: Push latest - CONVERTER
         if: ${{ github.ref_name == 'main' }}
         run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/hw3-converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/hw3-converter:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/hw3-converter:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/converter:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/converter:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/converter:latest
 
       - name: Build and push the Docker Image - ACCOUNTS
         run: |
-          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/hw3-accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ./accounts
-          docker push ${{ secrets.DOCKER_USERNAME }}/hw3-accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
+          docker build --build-arg JAR_FILE=target/\*.jar --tag ${{ secrets.DOCKER_USERNAME }}/accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ./accounts
+          docker push ${{ secrets.DOCKER_USERNAME }}/accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}
 
       - name: Push latest - ACCOUNTS
         if: ${{ github.ref_name == 'main' }}
         run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/hw3-accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/hw3-accounts:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/hw3-accounts:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/accounts:${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7} ${{ secrets.DOCKER_USERNAME }}/accounts:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/accounts:latest
 
   autotest:
     needs: build
