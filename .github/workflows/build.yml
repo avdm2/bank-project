@@ -53,7 +53,7 @@ jobs:
 
   autotest:
     needs: build
-    uses: avdm2/ci-cs-avdm2/.github/workflows/autotests-hw9.yml@main
+    uses: avdm2/ci-cd-avdm2/.github/workflows/autotests-hw9.yml@main
     with:
       chart-path: ./helm-hw2
       converter-image-name: avdm2/converter
